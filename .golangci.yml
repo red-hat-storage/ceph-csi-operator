@@ -23,11 +23,11 @@ linters:
     - errcheck
     - exportloopref
     - goconst
-    - gocyclo
     - gofmt
     - goimports
     - gosimple
     - govet
+    - gosec
     - ineffassign
     - lll
     - misspell
