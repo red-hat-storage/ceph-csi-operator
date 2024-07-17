@@ -4,17 +4,23 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2024-07-04T14:02:29Z"
+    createdAt: "2024-07-17T12:27:29Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
-  name: ceph-csi-operator.v4.17.0
+  name: cephcsi-operator.v4.17.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - kind: CephCluster
+      name: cephclusters.csi.ceph.io
+      version: v1alpha1
+    - kind: Config
+      name: configs.csi.ceph.io
+      version: v1alpha1
     - kind: Driver
       name: drivers.csi.ceph.io
       version: v1alpha1
@@ -30,6 +36,32 @@ spec:
     spec:
       clusterPermissions:
       - rules:
+        - apiGroups:
+          - csi.ceph.io
+          resources:
+          - configs
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - csi.ceph.io
+          resources:
+          - configs/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - csi.ceph.io
+          resources:
+          - configs/status
+          verbs:
+          - get
+          - patch
+          - update
         - apiGroups:
           - csi.ceph.io
           resources:
@@ -118,7 +150,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: quay.io/cephcsi/ceph-csi-operator:latest
+                image: quay.io/ocs-dev/ceph-csi-operator:latest
                 livenessProbe:
                   httpGet:
                     path: /healthz
