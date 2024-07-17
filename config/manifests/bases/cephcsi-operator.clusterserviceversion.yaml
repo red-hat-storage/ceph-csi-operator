@@ -6,7 +6,7 @@ metadata:
     capabilities: Basic Install
     olm.skipRange: ""
     operators.operatorframework.io/operator-type: non-standalone
-  name: ceph-csi-operator.v0.1.1
+  name: cephcsi-operator.v0.1.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
