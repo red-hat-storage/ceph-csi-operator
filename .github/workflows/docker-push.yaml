@@ -30,6 +30,7 @@ jobs:
 
     - name: Build and push docker images
       env:
+        IMAGE_NAME: cephcsi-operator
         REGISTRY_NAMESPACE: ${{ github.event.inputs.REGISTRY_NAMESPACE }}
         IMAGE_TAG: ${{ github.event.inputs.IMAGE_TAG }}
         IMAGE_TAG_SHA: ${{ github.ref_name }}-${{ github.sha }}
