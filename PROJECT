@@ -28,10 +28,10 @@ resources:
 - api:
     crdVersion: v1
     namespaced: true
+  controller: true
   domain: ceph.io
   group: csi
-  kind: CephCluster
-  controller: true
+  kind: CephConnection
   path: github.com/ceph/ceph-csi-operator/api/v1alpha1
   version: v1alpha1
 - api:
@@ -39,7 +39,16 @@ resources:
     namespaced: true
   domain: ceph.io
   group: csi
-  kind: Config
+  kind: ClientProfile
+  path: github.com/ceph/ceph-csi-operator/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: ceph.io
+  group: csi
+  kind: ClientProfileMapping
   path: github.com/ceph/ceph-csi-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

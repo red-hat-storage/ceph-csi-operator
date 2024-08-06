@@ -20,12 +20,22 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// OperatorLogSpec provide log related settings for the operator
+type OperatorLogSpec struct {
+	// Operator's log level
+	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:Minimum=0
+	//+kubebuilder:validation:Maximum=3
+	Verbosity int `json:"verbosity,omitempty"`
+}
+
 // OperatorConfigSpec defines the desired state of OperatorConfig
 type OperatorConfigSpec struct {
-	// Operator's log level
-	LogLevel int `json:"logLevel,omitempty"`
+	//+kubebuilder:validation:Optional
+	Log *OperatorLogSpec `json:"log,omitempty"`
 
 	// Allow overwrite of hardcoded defaults for any driver managed by this operator
+	//+kubebuilder:validation:Optional
 	DriverSpecDefaults *DriverSpec `json:"driverSpecDefaults,omitempty"`
 }
 

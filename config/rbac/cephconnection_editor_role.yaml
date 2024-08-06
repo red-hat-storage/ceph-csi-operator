@@ -1,0 +1,27 @@
+# permissions for end users to edit cephconnections.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: ceph-csi-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: cephconnections-editor-role
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - cephconnections
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - cephconnections/status
+  verbs:
+  - get
