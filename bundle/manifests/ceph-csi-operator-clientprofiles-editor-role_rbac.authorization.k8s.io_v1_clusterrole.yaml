@@ -5,12 +5,12 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ceph-csi-operator
-  name: ceph-csi-operator-cephcluster-editor-role
+  name: ceph-csi-operator-clientprofiles-editor-role
 rules:
 - apiGroups:
   - csi.ceph.io
   resources:
-  - cephclusters
+  - clientprofiles
   verbs:
   - create
   - delete
@@ -22,6 +22,6 @@ rules:
 - apiGroups:
   - csi.ceph.io
   resources:
-  - cephclusters/status
+  - clientprofiles/status
   verbs:
   - get

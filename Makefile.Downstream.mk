@@ -36,13 +36,16 @@ BUNDLE_CHANNELS := --channels=$(CHANNELS)
 OPERATOR_SDK ?= $(LOCALBIN)/operator-sdk-$(OPERATOR_SDK_VERSION)
 OPERATOR_SDK_VERSION ?= 1.34.1
 
+EXTRA_SERVICE_ACCOUNTS := 'ceph-csi-operator-csi-cephfs-ctrlplugin-sa,ceph-csi-operator-csi-cephfs-nodeplugin-sa,ceph-csi-operator-csi-rbd-ctrlplugin-sa,ceph-csi-operator-csi-rbd-nodeplugin-sa'
 
 .PHONY: bundle
 bundle: kustomize operator-sdk manifests
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
 	cd config/manifests/bases && $(KUSTOMIZE) edit add annotation --force 'olm.skipRange':"$(SKIP_RANGE)"
+	rm -rf bundle
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle \
-		--overwrite --manifests --metadata --package $(PACKAGE_NAME) --version $(BUNDLE_VERSION) $(BUNDLE_METADATA_OPTS)
+		--overwrite --manifests --metadata --package $(PACKAGE_NAME) --version $(BUNDLE_VERSION) $(BUNDLE_METADATA_OPTS) \
+		--extra-service-accounts $(EXTRA_SERVICE_ACCOUNTS)
 
 .PHONY: bundle-build
 bundle-build: bundle ## Build the bundle image.
