@@ -18,6 +18,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
@@ -26,7 +27,7 @@ import (
 const (
 	SocketDir         = "/csi"
 	csiEndpoint       = "unix://" + SocketDir + "/csi.sock"
-	csiAddonsEndpoint = "unix://" + SocketDir + "/csi-addons.sock.sock"
+	csiAddonsEndpoint = "unix://" + SocketDir + "/csi-addons.sock"
 
 	kmsConfigVolumeName      = "ceph-csi-kms-config"
 	registrationVolumeName   = "registration-dir"
@@ -308,8 +309,9 @@ var CsiAddonsContainerPort = corev1.ContainerPort{
 // Ceph CSI common container arguments
 var CsiAddressContainerArg = fmt.Sprintf("--csi-address=%s", csiEndpoint)
 var EndpointContainerArg = fmt.Sprintf("--endpoint=%s", csiEndpoint)
-var CsiAddonsEndpointContainerArg = fmt.Sprintf("--csi-addons-endpoint=(%s)", csiAddonsEndpoint)
-var CsiAddonsAddressContainerArg = fmt.Sprintf("--csi-addons-address=(%s)", csiAddonsEndpoint)
+var CsiAddonsEndpointContainerArg = fmt.Sprintf("--csi-addons-endpoint=%s", csiAddonsEndpoint)
+var CsiAddonsAddressContainerArg = fmt.Sprintf("--csi-addons-address=%s", csiAddonsEndpoint)
+var CsiAddonsNodeIdContainerArg = fmt.Sprintf("--node-id=$(%s)", NodeIdEnvVar.Name)
 var LeaderElectionContainerArg = "--leader-election=true"
 var NodeIdContainerArg = fmt.Sprintf("--nodeid=$(%s)", NodeIdEnvVar.Name)
 var PidlimitContainerArg = "--pidlimit=-1"
@@ -320,7 +322,7 @@ var DefaultFsTypeContainerArg = "--default-fstype=ext4"
 var HandleVolumeInuseErrorContainerArg = "--handle-volume-inuse-error=false"
 var PodUidContainerArg = fmt.Sprintf("--pod-uid=$(%s)", PodUidEnvVar.Name)
 var PodContainerArg = fmt.Sprintf("--pod=$(%s)", PodNameEnvVar.Name)
-var NamespaceContainerArg = fmt.Sprintf("--namespace=(%s)", PodNamespaceEnvVar.Name)
+var NamespaceContainerArg = fmt.Sprintf("--namespace=$(%s)", PodNamespaceEnvVar.Name)
 var ControllerPortContainerArg = fmt.Sprintf("--controller-port=%d", CsiAddonsContainerPort.ContainerPort)
 var DriverNamespaceContainerArg = fmt.Sprintf("--drivernamespace=$(%s)", DriverNamespaceEnvVar.Name)
 var MetricsPathContainerArg = "--metricspath=/metrics"
@@ -328,9 +330,7 @@ var PoolTimeContainerArg = "--polltime=60s"
 var ExtraCreateMetadataContainerArg = "--extra-create-metadata=true"
 var PreventVolumeModeConversionContainerArg = "--prevent-volume-mode-conversion=true"
 var HonorPVReclaimPolicyContainerArg = "--feature-gates=HonorPVReclaimPolicy=true"
-
-// TODO: the value for this field should be based on "domainlabels" in RBD nodeplugin, so "false" here is temporary.
-var TopologyContainerArg = "--feature-gates=Topology=false"
+var ImmediateTopologyContainerArg = "--immediate-topology=false"
 var RecoverVolumeExpansionFailureContainerArg = "--feature-gates=RecoverVolumeExpansionFailure=true"
 var EnableVolumeGroupSnapshotsContainerArg = "--enable-volume-group-snapshots=true"
 var ForceCephKernelClientContainerArg = "--forcecephkernelclient=true"
@@ -390,6 +390,13 @@ func FuseMountOptionsContainerArg(options map[string]string) string {
 	return If(
 		len(options) == 0,
 		fmt.Sprintf("--fusemountoptions==%s", MapToString(options, "=", ",")),
+		"",
+	)
+}
+func DomainLabelsContainerArg(options []string) string {
+	return If(
+		len(options) > 0,
+		fmt.Sprintf("--domainlabels=%s", strings.Join(options, ",")),
 		"",
 	)
 }
