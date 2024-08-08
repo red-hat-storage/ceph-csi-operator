@@ -5,12 +5,12 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ceph-csi-operator
-  name: ceph-csi-operator-cephcluster-viewer-role
+  name: ocscsi-clientprofilemapping-viewer-role
 rules:
 - apiGroups:
   - csi.ceph.io
   resources:
-  - cephclusters
+  - clientprofilemappings
   verbs:
   - get
   - list
@@ -18,6 +18,6 @@ rules:
 - apiGroups:
   - csi.ceph.io
   resources:
-  - cephclusters/status
+  - clientprofilemappings/status
   verbs:
   - get

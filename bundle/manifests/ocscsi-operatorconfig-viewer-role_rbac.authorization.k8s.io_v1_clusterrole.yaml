@@ -5,12 +5,12 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ceph-csi-operator
-  name: ceph-csi-operator-driver-viewer-role
+  name: ocscsi-operatorconfig-viewer-role
 rules:
 - apiGroups:
   - csi.ceph.io
   resources:
-  - drivers
+  - operatorconfigs
   verbs:
   - get
   - list
@@ -18,6 +18,6 @@ rules:
 - apiGroups:
   - csi.ceph.io
   resources:
-  - drivers/status
+  - operatorconfigs/status
   verbs:
   - get
