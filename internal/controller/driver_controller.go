@@ -581,7 +581,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 										utils.LeaderElectionContainerArg,
 										utils.LogVerbosityContainerArg(logVerbosity),
 										utils.CsiAddressContainerArg,
-										utils.TimeoutContainerArg(r.driver.Spec.GRpcTimeout),
+										utils.TimeoutContainerArg(grpcTimeout),
 										utils.HandleVolumeInuseErrorContainerArg,
 										utils.RecoverVolumeExpansionFailureContainerArg,
 									),
@@ -649,7 +649,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 							})
 						}
 						// Addons Sidecar Container
-						if ptr.Deref(r.driver.Spec.DeployCsiAddons, false) {
+						if !r.isNfsDriver() && ptr.Deref(r.driver.Spec.DeployCsiAddons, false) {
 							containers = append(containers, corev1.Container{
 								Name:            "csi-addons",
 								Image:           r.images["addons"],
@@ -951,7 +951,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
 							},
 						}
 						// CSI Addons Sidecar Container
-						if ptr.Deref(r.driver.Spec.DeployCsiAddons, false) {
+						if r.isRdbDriver() && ptr.Deref(r.driver.Spec.DeployCsiAddons, false) {
 							containers = append(containers, corev1.Container{
 								Name:            "csi-addons",
 								Image:           r.images["addons"],
