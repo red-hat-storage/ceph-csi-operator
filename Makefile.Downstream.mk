@@ -38,7 +38,16 @@ OPERATOR_SDK_VERSION ?= 1.34.1
 
 NAME_PREFIX = ocscsi-
 
-EXTRA_SERVICE_ACCOUNTS := '$(NAME_PREFIX)cephfs-ctrlplugin-sa,$(NAME_PREFIX)cephfs-nodeplugin-sa,$(NAME_PREFIX)rbd-ctrlplugin-sa,$(NAME_PREFIX)rbd-nodeplugin-sa'
+SERVICE_ACCOUNTS := \
+	$(NAME_PREFIX)cephfs-ctrlplugin-sa, \
+	$(NAME_PREFIX)cephfs-nodeplugin-sa, \
+	$(NAME_PREFIX)nfs-ctrlplugin-sa, \
+	$(NAME_PREFIX)nfs-nodeplugin-sa, \
+	$(NAME_PREFIX)rbd-ctrlplugin-sa, \
+	$(NAME_PREFIX)rbd-nodeplugin-sa
+
+# Remove spaces using tr
+EXTRA_SERVICE_ACCOUNTS := $(shell echo $(SERVICE_ACCOUNTS) | tr -d ' ')
 
 .PHONY: bundle
 bundle: kustomize operator-sdk manifests
