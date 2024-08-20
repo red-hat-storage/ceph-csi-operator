@@ -5,23 +5,19 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ceph-csi-operator
-  name: ocscsi-operatorconfig-editor-role
+  name: ceph-csi-clientprofilemapping-viewer-role
 rules:
 - apiGroups:
   - csi.ceph.io
   resources:
-  - operatorconfigs
+  - clientprofilemappings
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - csi.ceph.io
   resources:
-  - operatorconfigs/status
+  - clientprofilemappings/status
   verbs:
   - get
