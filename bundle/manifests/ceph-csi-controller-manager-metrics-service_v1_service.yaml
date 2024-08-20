@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ceph-csi-operator
     control-plane: controller-manager
-  name: ocscsi-controller-manager-metrics-service
+  name: ceph-csi-controller-manager-metrics-service
 spec:
   ports:
   - name: https

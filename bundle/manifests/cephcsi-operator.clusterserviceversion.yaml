@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2024-08-14T06:13:44Z"
+    createdAt: "2024-08-20T14:06:06Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -138,7 +138,7 @@ spec:
           verbs:
           - update
           - patch
-        serviceAccountName: ocscsi-cephfs-ctrlplugin-sa
+        serviceAccountName: ceph-csi-cephfs-ctrlplugin-sa
       - rules:
         - apiGroups:
           - ""
@@ -170,7 +170,7 @@ spec:
           - serviceaccounts/token
           verbs:
           - create
-        serviceAccountName: ocscsi-cephfs-nodeplugin-sa
+        serviceAccountName: ceph-csi-cephfs-nodeplugin-sa
       - rules:
         - apiGroups:
           - ""
@@ -340,7 +340,7 @@ spec:
           - subjectaccessreviews
           verbs:
           - create
-        serviceAccountName: ocscsi-controller-manager
+        serviceAccountName: ceph-csi-controller-manager
       - rules:
         - apiGroups:
           - ""
@@ -469,7 +469,7 @@ spec:
           - volumeattachments/status
           verbs:
           - patch
-        serviceAccountName: ocscsi-nfs-ctrlplugin-sa
+        serviceAccountName: ceph-csi-nfs-ctrlplugin-sa
       - rules:
         - apiGroups:
           - ""
@@ -477,7 +477,7 @@ spec:
           - nodes
           verbs:
           - get
-        serviceAccountName: ocscsi-nfs-nodeplugin-sa
+        serviceAccountName: ceph-csi-nfs-nodeplugin-sa
       - rules:
         - apiGroups:
           - ""
@@ -629,7 +629,7 @@ spec:
           - get
           - list
           - watch
-        serviceAccountName: ocscsi-rbd-ctrlplugin-sa
+        serviceAccountName: ceph-csi-rbd-ctrlplugin-sa
       - rules:
         - apiGroups:
           - ""
@@ -676,13 +676,13 @@ spec:
           - nodes
           verbs:
           - get
-        serviceAccountName: ocscsi-rbd-nodeplugin-sa
+        serviceAccountName: ceph-csi-rbd-nodeplugin-sa
       deployments:
       - label:
           app.kubernetes.io/managed-by: kustomize
           app.kubernetes.io/name: ceph-csi-operator
           control-plane: controller-manager
-        name: ocscsi-controller-manager
+        name: ceph-csi-controller-manager
         spec:
           replicas: 1
           selector:
@@ -732,7 +732,7 @@ spec:
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: CSI_SERVICE_ACCOUNT_PREFIX
-                  value: ocscsi-
+                  value: ceph-csi-
                 image: quay.io/ocs-dev/cephcsi-operator:latest
                 livenessProbe:
                   httpGet:
@@ -761,7 +761,7 @@ spec:
                     - ALL
               securityContext:
                 runAsNonRoot: true
-              serviceAccountName: ocscsi-controller-manager
+              serviceAccountName: ceph-csi-controller-manager
               terminationGracePeriodSeconds: 10
       permissions:
       - rules:
@@ -782,7 +782,7 @@ spec:
           - csiaddonsnodes
           verbs:
           - create
-        serviceAccountName: ocscsi-cephfs-ctrlplugin-sa
+        serviceAccountName: ceph-csi-cephfs-ctrlplugin-sa
       - rules:
         - apiGroups:
           - ""
@@ -815,7 +815,7 @@ spec:
           verbs:
           - create
           - patch
-        serviceAccountName: ocscsi-controller-manager
+        serviceAccountName: ceph-csi-controller-manager
       - rules:
         - apiGroups:
           - coordination.k8s.io
@@ -834,7 +834,7 @@ spec:
           - csiaddonsnodes
           verbs:
           - create
-        serviceAccountName: ocscsi-rbd-ctrlplugin-sa
+        serviceAccountName: ceph-csi-rbd-ctrlplugin-sa
       - rules:
         - apiGroups:
           - csiaddons.openshift.io
@@ -842,7 +842,7 @@ spec:
           - csiaddonsnodes
           verbs:
           - create
-        serviceAccountName: ocscsi-rbd-nodeplugin-sa
+        serviceAccountName: ceph-csi-rbd-nodeplugin-sa
     strategy: deployment
   installModes:
   - supported: true
