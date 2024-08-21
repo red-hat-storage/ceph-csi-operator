@@ -5,19 +5,9 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ceph-csi-operator
-  name: ocscsi-operatorconfig-viewer-role
+  name: ceph-csi-metrics-reader
 rules:
-- apiGroups:
-  - csi.ceph.io
-  resources:
-  - operatorconfigs
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - csi.ceph.io
-  resources:
-  - operatorconfigs/status
+- nonResourceURLs:
+  - /metrics
   verbs:
   - get

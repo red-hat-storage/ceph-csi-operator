@@ -36,7 +36,7 @@ BUNDLE_CHANNELS := --channels=$(CHANNELS)
 OPERATOR_SDK ?= $(LOCALBIN)/operator-sdk-$(OPERATOR_SDK_VERSION)
 OPERATOR_SDK_VERSION ?= 1.34.1
 
-NAME_PREFIX = ocscsi-
+NAME_PREFIX = ceph-csi-
 
 SERVICE_ACCOUNTS := \
 	$(NAME_PREFIX)cephfs-ctrlplugin-sa, \
