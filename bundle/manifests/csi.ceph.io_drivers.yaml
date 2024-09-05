@@ -3466,8 +3466,8 @@ spec:
                 description: |-
                   OMAP generator will generate the omap mapping between the PV name and the RBD image.
                   Need to be enabled when we are using rbd mirroring feature.
-                  By default OMAP generator sidecar is deployed with Csi controller plugin pod, to disable
-                  it set it to false.
+                  By default OMAP generator sidecar is not deployed with Csi controller plugin pod, to enable
+                  it set it to true.
                 type: boolean
               grpcTimeout:
                 description: Set the gRPC timeout for gRPC call issued by the driver
@@ -3542,11 +3542,14 @@ spec:
                     description: log rotation for csi pods
                     properties:
                       logHostPath:
-                        description: LogHostPath is the prefix directory path for
-                          the csi log files
+                        description: |-
+                          LogHostPath is the prefix directory path for the csi log files
+                          Default to /var/lib/cephcsi
                         type: string
                       maxFiles:
-                        description: MaxFiles is the number of logrtoate files
+                        description: |-
+                          MaxFiles is the number of logrtoate files
+                          Default to 7
                         type: integer
                       maxLogSize:
                         anyOf:
@@ -3565,6 +3568,9 @@ spec:
                         - monthly
                         type: string
                     type: object
+                    x-kubernetes-validations:
+                    - message: Either maxLogSize or periodicity must be set
+                      rule: (has(self.maxLogSize)) || (has(self.periodicity))
                   verbosity:
                     description: |-
                       Log verbosity level for driver pods,
