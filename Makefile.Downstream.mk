@@ -55,6 +55,7 @@ bundle: kustomize operator-sdk manifests
 	rm -f config/manifests/kustomization.yaml
 	mkdir -p build dist
 	cd build && echo "$$BUILD_INSTALLER_OVERLAY" > kustomization.yaml
+	cd build && $(KUSTOMIZE) edit add resource ../config/default/
 	cd config/manifests/bases && $(KUSTOMIZE) edit add annotation --force 'olm.skipRange':"$(SKIP_RANGE)"
 	cd config/manifests && $(KUSTOMIZE) create --resources bases,../../build
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle \
