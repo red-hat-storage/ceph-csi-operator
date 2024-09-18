@@ -40,23 +40,31 @@ spec:
           spec:
             description: ClientProfileMappingSpec defines the desired state of ClientProfileMapping
             properties:
-              mappings:
+              blockPoolMapping:
                 items:
-                  description: MappingsSpec define a mapping between a local and remote
-                    profiles
+                  description: BlockPoolMappingSpec define a mapiing between a local
+                    and remote block pools
                   properties:
-                    blockPoolIdMapping:
-                      items:
-                        items:
+                    local:
+                      description: BlockPoolRefSpec identify a blockpool - client
+                        profile pair
+                      properties:
+                        clientProfileName:
                           type: string
-                        maxItems: 2
-                        minItems: 2
-                        type: array
-                      type: array
-                    localClientProfile:
-                      type: string
-                    remoteClientProfile:
-                      type: string
+                        poolId:
+                          minimum: 0
+                          type: integer
+                      type: object
+                    remote:
+                      description: BlockPoolRefSpec identify a blockpool - client
+                        profile pair
+                      properties:
+                        clientProfileName:
+                          type: string
+                        poolId:
+                          minimum: 0
+                          type: integer
+                      type: object
                   type: object
                 type: array
             type: object
