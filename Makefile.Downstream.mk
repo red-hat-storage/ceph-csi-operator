@@ -1,3 +1,9 @@
+# defining variables here before including "Makefile" makes these variables unique for current makefile
+IMAGE_REGISTRY ?= quay.io
+REGISTRY_NAMESPACE ?= ocs-dev
+IMAGE_TAG ?= latest
+IMAGE_NAME ?= cephcsi-operator
+
 include Makefile
 
 BUNDLE_IMAGE_NAME ?= $(IMAGE_NAME)-bundle
