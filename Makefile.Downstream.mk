@@ -67,6 +67,7 @@ bundle: kustomize operator-sdk manifests
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle \
 		--overwrite --manifests --metadata --package $(PACKAGE_NAME) --version $(BUNDLE_VERSION) $(BUNDLE_METADATA_OPTS) \
 		--extra-service-accounts $(EXTRA_SERVICE_ACCOUNTS)
+	hack/update-csv-timestamp.sh
 	rm -rf build
 
 .PHONY: bundle-build
