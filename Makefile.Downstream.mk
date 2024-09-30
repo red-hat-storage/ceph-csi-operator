@@ -1,3 +1,9 @@
+# defining variables here before including "Makefile" makes these variables unique for current makefile
+IMAGE_REGISTRY ?= quay.io
+REGISTRY_NAMESPACE ?= ocs-dev
+IMAGE_TAG ?= latest
+IMAGE_NAME ?= cephcsi-operator
+
 include Makefile
 
 BUNDLE_IMAGE_NAME ?= $(IMAGE_NAME)-bundle
@@ -61,6 +67,7 @@ bundle: kustomize operator-sdk manifests
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle \
 		--overwrite --manifests --metadata --package $(PACKAGE_NAME) --version $(BUNDLE_VERSION) $(BUNDLE_METADATA_OPTS) \
 		--extra-service-accounts $(EXTRA_SERVICE_ACCOUNTS)
+	hack/update-csv-timestamp.sh
 	rm -rf build
 
 .PHONY: bundle-build
