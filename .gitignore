@@ -36,3 +36,6 @@ dist/
 
 # Locally generated dockerfile for multi-arch
 Dockerfile.cross
+
+deploy/all-in-one/install.yaml
+deploy/multifile/operator.yaml
