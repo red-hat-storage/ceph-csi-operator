@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2024-09-18T12:32:51Z"
+    createdAt: "2024-10-04T03:16:54Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -766,6 +766,11 @@ spec:
                 runAsNonRoot: true
               serviceAccountName: ceph-csi-controller-manager
               terminationGracePeriodSeconds: 10
+              tolerations:
+              - effect: NoSchedule
+                key: node.ocs.openshift.io/storage
+                operator: Equal
+                value: "true"
       permissions:
       - rules:
         - apiGroups:
