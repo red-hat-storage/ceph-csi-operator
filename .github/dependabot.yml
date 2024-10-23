@@ -4,6 +4,8 @@ updates:
   # Dependencies listed in go.mod
   - package-ecosystem: "gomod"
     directory: "/" # Location of package manifests
+     # ODF only: disable PR creation, dependencies are synced from upstream
+    open-pull-requests-limit: 0
     schedule:
       interval: "weekly"
     groups:
@@ -21,5 +23,7 @@ updates:
   # Dependencies listed in .github/workflows/*.yml
   - package-ecosystem: "github-actions"
     directory: "/"
+    # ODF only: disable PR creation, dependencies are synced from upstream
+    open-pull-requests-limit: 0
     schedule:
       interval: "weekly"
