@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2024-10-17T04:07:22Z"
+    createdAt: "2024-11-06T08:04:38Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -46,6 +46,28 @@ spec:
           verbs:
           - get
           - list
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+        - apiGroups:
+          - ""
+          resources:
+          - nodes
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - storage.k8s.io
+          resources:
+          - csinodes
+          verbs:
+          - get
+          - list
+          - watch
         - apiGroups:
           - ""
           resources:
@@ -139,6 +161,43 @@ spec:
           verbs:
           - update
           - patch
+        - apiGroups:
+          - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotclasses
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotcontents
+          verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+        - apiGroups:
+          - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotcontents/status
+          verbs:
+          - update
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - serviceaccounts
+          verbs:
+          - get
+        - apiGroups:
+          - ""
+          resources:
+          - serviceaccounts/token
+          verbs:
+          - create
         serviceAccountName: ceph-csi-cephfs-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -616,21 +675,30 @@ spec:
           verbs:
           - create
         - apiGroups:
-          - ""
+          - groupsnapshot.storage.k8s.io
           resources:
-          - nodes
-          verbs:
-          - get
-          - list
-          - watch"
-        - apiGroups:
-          - storage.k8s.io
-          resources:
-          - csinodes
+          - volumegroupsnapshotclasses
           verbs:
           - get
           - list
           - watch
+        - apiGroups:
+          - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotcontents
+          verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+        - apiGroups:
+          - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotcontents/status
+          verbs:
+          - update
+          - patch
         serviceAccountName: ceph-csi-rbd-ctrlplugin-sa
       - rules:
         - apiGroups:
