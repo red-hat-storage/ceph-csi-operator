@@ -312,9 +312,6 @@ func (r *driverReconcile) LoadAndValidateDesiredState() error {
 	r.images = maps.Clone(imageDefaults)
 
 	if opConfig.Spec.DriverSpecDefaults != nil {
-		// Creating a copy of the driver spec, making sure any local changes will not effect the object residing
-		// in the client's cache
-		r.driver.Spec = *r.driver.Spec.DeepCopy()
 		mergeDriverSpecs(&r.driver.Spec, opConfig.Spec.DriverSpecDefaults)
 
 		// If provided, load an imageset from configmap to overwrite default images
@@ -564,6 +561,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 		deploy.Spec = appsv1.DeploymentSpec{
 			Replicas: pluginSpec.Replicas,
 			Selector: &appSelector,
+			Strategy: ptr.Deref(pluginSpec.DeploymentStrategy, defaultDeploymentStrategy),
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: utils.Call(func() map[string]string {
@@ -957,7 +955,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{"app": appName},
 			},
-			UpdateStrategy: ptr.Deref(pluginSpec.UpdateStrategy, defautUpdateStrategy),
+			UpdateStrategy: ptr.Deref(pluginSpec.UpdateStrategy, defaultDaemonSetUpdateStrategy),
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: utils.Call(func() map[string]string {
