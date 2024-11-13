@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2024-11-06T08:04:38Z"
+    createdAt: "2024-11-11T08:52:44Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -857,7 +857,28 @@ spec:
           resources:
           - csiaddonsnodes
           verbs:
+          - get
           - create
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - deployments/finalizers
+          - daemonsets/finalizers
+          verbs:
+          - update
         serviceAccountName: ceph-csi-cephfs-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -909,7 +930,28 @@ spec:
           resources:
           - csiaddonsnodes
           verbs:
+          - get
           - create
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - deployments/finalizers
+          - daemonsets/finalizers
+          verbs:
+          - update
         serviceAccountName: ceph-csi-rbd-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -917,7 +959,28 @@ spec:
           resources:
           - csiaddonsnodes
           verbs:
+          - get
           - create
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - deployments/finalizers
+          - daemonsets/finalizers
+          verbs:
+          - update
         serviceAccountName: ceph-csi-rbd-nodeplugin-sa
     strategy: deployment
   installModes:
