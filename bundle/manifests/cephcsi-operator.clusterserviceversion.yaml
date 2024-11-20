@@ -4,12 +4,12 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2024-11-11T08:52:44Z"
+    createdAt: "2024-11-12T15:12:45Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
-  name: cephcsi-operator.v4.17.0
+  name: cephcsi-operator.v4.18.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -1004,4 +1004,4 @@ spec:
   maturity: alpha
   provider:
     name: CephCSI Community
-  version: 4.17.0
+  version: 4.18.0
