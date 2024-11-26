@@ -5,7 +5,7 @@
 [![Mergify Status](https://img.shields.io/endpoint.svg?url=https://api.mergify.com/v1/badges/ceph/ceph-csi-operator&style=flat)](https://mergify.com)
 ![Version](https://img.shields.io/github/v/release/ceph/ceph-csi-operator)
 
-## Table of Contents
+## Table of Contentss
 
 - [Ceph CSI Operator](#ceph-csi-operator)
   - [Table of Contents](#table-of-contents)
