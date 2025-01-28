@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2025-01-07T09:56:41Z"
+    createdAt: "2025-01-28T08:05:10Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -884,6 +884,12 @@ spec:
           - daemonsets/finalizers
           verbs:
           - update
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
         serviceAccountName: ceph-csi-cephfs-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -958,6 +964,12 @@ spec:
           - daemonsets/finalizers
           verbs:
           - update
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
         serviceAccountName: ceph-csi-rbd-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -988,6 +1000,12 @@ spec:
           - daemonsets/finalizers
           verbs:
           - update
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
         serviceAccountName: ceph-csi-rbd-nodeplugin-sa
     strategy: deployment
   installModes:
