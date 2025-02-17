@@ -14098,6 +14098,8 @@ rules:
   - csiaddonsnodes
   verbs:
   - get
+  - watch
+  - list
   - create
   - update
   - delete
@@ -14185,6 +14187,8 @@ rules:
   - csiaddonsnodes
   verbs:
   - get
+  - watch
+  - list
   - create
   - update
   - delete
@@ -14220,6 +14224,8 @@ rules:
   - csiaddonsnodes
   verbs:
   - get
+  - watch
+  - list
   - create
   - update
   - delete
