@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2025-02-11T08:02:27Z"
+    createdAt: "2025-02-18T08:07:29Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -878,6 +878,8 @@ spec:
           - csiaddonsnodes
           verbs:
           - get
+          - watch
+          - list
           - create
           - update
           - delete
@@ -958,6 +960,8 @@ spec:
           - csiaddonsnodes
           verbs:
           - get
+          - watch
+          - list
           - create
           - update
           - delete
@@ -994,6 +998,8 @@ spec:
           - csiaddonsnodes
           verbs:
           - get
+          - watch
+          - list
           - create
           - update
           - delete
