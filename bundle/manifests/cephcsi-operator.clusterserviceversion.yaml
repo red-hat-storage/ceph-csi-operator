@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2024-10-17T06:13:47Z"
+    createdAt: "2025-01-07T12:06:04Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -735,6 +735,10 @@ spec:
                       fieldPath: metadata.namespace
                 - name: CSI_SERVICE_ACCOUNT_PREFIX
                   value: ceph-csi-
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
                 image: quay.io/ocs-dev/cephcsi-operator:latest
                 livenessProbe:
                   httpGet:
