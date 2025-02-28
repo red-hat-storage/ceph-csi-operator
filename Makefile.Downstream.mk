@@ -21,7 +21,7 @@ SKIP_RANGE ?=
 
 # The default version of the bundle (CSV) can be found in
 # config/manifests/bases/cephcsi-operator.clusterserviceversion.yaml
-BUNDLE_VERSION ?= 4.18.0
+BUNDLE_VERSION ?= 4.19.0
 
 # DEFAULT_CHANNEL defines the default channel used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g DEFAULT_CHANNEL = "stable")
