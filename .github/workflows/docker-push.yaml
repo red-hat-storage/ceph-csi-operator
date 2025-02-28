@@ -37,11 +37,11 @@ jobs:
         REGISTRY_NAMESPACE: ${{ github.event.inputs.REGISTRY_NAMESPACE }}
         IMAGE_TAG: ${{ github.event.inputs.IMAGE_TAG }}
         IMAGE_TAG_SHA: ${{ github.ref_name }}-${{ github.sha }}
-        BUNDLE_VERSION: ${{ github.event.inputs.BUNDLE_VERSION }}
+        BUNDLE_VER: ${{ github.event.inputs.BUNDLE_VERSION }}
       run: |
         # Set IMAGE_TAG to a calculated <branch>-<sha> if not specified
         export IMAGE_TAG=${IMAGE_TAG:-${IMAGE_TAG_SHA:0:-33}}
         # Export BUNDLE_VERSION if specified else use the one in makefile
-        [ -n "$BUNDLE_VERSION" ] && export BUNDLE_VERSION=${BUNDLE_VERSION}
+        [ -n "$BUNDLE_VER" ] && export BUNDLE_VERSION=${BUNDLE_VER}
         make -f Makefile.Downstream.mk docker-build docker-push
         make -f Makefile.Downstream.mk bundle-build bundle-push
