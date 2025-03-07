@@ -618,8 +618,3 @@ spec:
         runAsNonRoot: true
       serviceAccountName: ceph-csi-operator-controller-manager
       terminationGracePeriodSeconds: 10
-      tolerations:
-      - effect: NoSchedule
-        key: node.ocs.openshift.io/storage
-        operator: Equal
-        value: "true"
