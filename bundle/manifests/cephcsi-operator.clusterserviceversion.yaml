@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2025-03-05T08:08:50Z"
+    createdAt: "2025-03-18T08:02:06Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -196,6 +196,12 @@ spec:
           - ""
           resources:
           - serviceaccounts/token
+          verbs:
+          - create
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
           verbs:
           - create
         serviceAccountName: ceph-csi-cephfs-ctrlplugin-sa
@@ -715,6 +721,12 @@ spec:
           - get
           - list
           - watch
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
         serviceAccountName: ceph-csi-rbd-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -762,6 +774,12 @@ spec:
           - nodes
           verbs:
           - get
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
         serviceAccountName: ceph-csi-rbd-nodeplugin-sa
       deployments:
       - label:
@@ -877,12 +895,6 @@ spec:
           - daemonsets/finalizers
           verbs:
           - update
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
         serviceAccountName: ceph-csi-cephfs-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -959,12 +971,6 @@ spec:
           - daemonsets/finalizers
           verbs:
           - update
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
         serviceAccountName: ceph-csi-rbd-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -997,12 +1003,6 @@ spec:
           - daemonsets/finalizers
           verbs:
           - update
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
         serviceAccountName: ceph-csi-rbd-nodeplugin-sa
     strategy: deployment
   installModes:
