@@ -5,7 +5,7 @@ metadata:
 rules:
   - apiGroups: ["csiaddons.openshift.io"]
     resources: ["csiaddonsnodes"]
-    verbs: ["get", "create", "update", "delete"]
+    verbs: ["get", "watch", "list", "create", "update", "delete"]
   - apiGroups: [""]
     resources: ["pods"]
     verbs: ["get"]
@@ -15,6 +15,3 @@ rules:
   - apiGroups: ["apps"]
     resources: ["deployments/finalizers", "daemonsets/finalizers"]
     verbs: ["update"]
-  - apiGroups: ["authentication.k8s.io"]
-    resources: ["tokenreviews"]
-    verbs: ["create"]

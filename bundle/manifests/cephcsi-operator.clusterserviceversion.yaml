@@ -4,12 +4,12 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2025-02-11T08:02:27Z"
+    createdAt: "2025-03-18T08:02:06Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
-  name: cephcsi-operator.v4.18.0
+  name: cephcsi-operator.v4.19.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -196,6 +196,12 @@ spec:
           - ""
           resources:
           - serviceaccounts/token
+          verbs:
+          - create
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
           verbs:
           - create
         serviceAccountName: ceph-csi-cephfs-ctrlplugin-sa
@@ -715,6 +721,12 @@ spec:
           - get
           - list
           - watch
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
         serviceAccountName: ceph-csi-rbd-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -762,6 +774,12 @@ spec:
           - nodes
           verbs:
           - get
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
         serviceAccountName: ceph-csi-rbd-nodeplugin-sa
       deployments:
       - label:
@@ -784,31 +802,6 @@ spec:
             spec:
               containers:
               - args:
-                - --secure-listen-address=0.0.0.0:8443
-                - --upstream=http://127.0.0.1:8080/
-                - --v=0
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.16.0
-                name: kube-rbac-proxy
-                ports:
-                - containerPort: 8443
-                  name: https
-                  protocol: TCP
-                resources:
-                  limits:
-                    cpu: 500m
-                    memory: 128Mi
-                  requests:
-                    cpu: 5m
-                    memory: 64Mi
-                securityContext:
-                  allowPrivilegeEscalation: false
-                  capabilities:
-                    drop:
-                    - ALL
-                  readOnlyRootFilesystem: true
-              - args:
-                - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:8080
                 - --leader-elect
                 command:
                 - /manager
@@ -878,6 +871,8 @@ spec:
           - csiaddonsnodes
           verbs:
           - get
+          - watch
+          - list
           - create
           - update
           - delete
@@ -900,12 +895,6 @@ spec:
           - daemonsets/finalizers
           verbs:
           - update
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
         serviceAccountName: ceph-csi-cephfs-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -958,6 +947,8 @@ spec:
           - csiaddonsnodes
           verbs:
           - get
+          - watch
+          - list
           - create
           - update
           - delete
@@ -980,12 +971,6 @@ spec:
           - daemonsets/finalizers
           verbs:
           - update
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
         serviceAccountName: ceph-csi-rbd-ctrlplugin-sa
       - rules:
         - apiGroups:
@@ -994,6 +979,8 @@ spec:
           - csiaddonsnodes
           verbs:
           - get
+          - watch
+          - list
           - create
           - update
           - delete
@@ -1016,12 +1003,6 @@ spec:
           - daemonsets/finalizers
           verbs:
           - update
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
         serviceAccountName: ceph-csi-rbd-nodeplugin-sa
     strategy: deployment
   installModes:
@@ -1045,4 +1026,4 @@ spec:
   maturity: alpha
   provider:
     name: CephCSI Community
-  version: 4.18.0
+  version: 4.19.0

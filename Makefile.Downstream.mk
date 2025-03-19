@@ -21,7 +21,7 @@ SKIP_RANGE ?=
 
 # The default version of the bundle (CSV) can be found in
 # config/manifests/bases/cephcsi-operator.clusterserviceversion.yaml
-BUNDLE_VERSION ?= 4.18.0
+BUNDLE_VERSION ?= 4.19.0
 
 # DEFAULT_CHANNEL defines the default channel used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g DEFAULT_CHANNEL = "stable")
@@ -60,8 +60,11 @@ bundle: kustomize operator-sdk manifests
 	rm -rf bundle
 	rm -f config/manifests/kustomization.yaml
 	mkdir -p build dist
+	@# as per kustomize patch files should be in the folder and subfolders of kustomization.yaml for security reasons
+	cp config/manager/downstream_tolerations.yaml build/manager_downstream_tolerations.yaml
 	cd build && echo "$$BUILD_INSTALLER_OVERLAY" > kustomization.yaml
 	cd build && $(KUSTOMIZE) edit add resource ../config/default/
+	cd build && $(KUSTOMIZE) edit add patch --path manager_downstream_tolerations.yaml --kind Deployment --name controller-manager
 	cd config/manifests/bases && $(KUSTOMIZE) edit add annotation --force 'olm.skipRange':"$(SKIP_RANGE)"
 	cd config/manifests && $(KUSTOMIZE) create --resources bases,../../build
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle \

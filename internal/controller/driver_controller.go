@@ -1076,6 +1076,9 @@ func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
 									if r.driver.Spec.Encryption != nil {
 										mounts = append(mounts, utils.KmsConfigVolumeMount)
 									}
+									if r.isCephFsDriver() {
+										mounts = append(mounts, utils.CsiMountInfoVolumeMount)
+									}
 									if r.isRdbDriver() {
 										mounts = append(mounts, utils.OidcTokenVolumeMount)
 									}
@@ -1250,6 +1253,12 @@ func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
 							utils.PodsMountDirVolume(kubeletDirPath),
 							utils.RegistrationDirVolume(kubeletDirPath),
 						)
+						if r.isCephFsDriver() {
+							volumes = append(
+								volumes,
+								utils.CsiMountInfoVolume(kubeletDirPath, r.driver.Name),
+							)
+						}
 						if ptr.Deref(pluginSpec.EnableSeLinuxHostMount, false) {
 							volumes = append(
 								volumes,
@@ -1559,6 +1568,9 @@ func mergeDriverSpecs(dest, src *csiv1a1.DriverSpec) {
 	}
 	if dest.KernelMountOptions == nil {
 		dest.KernelMountOptions = src.KernelMountOptions
+	}
+	if dest.FuseMountOptions == nil {
+		dest.FuseMountOptions = src.FuseMountOptions
 	}
 	if src.CephFsClientType != "" {
 		dest.CephFsClientType = src.CephFsClientType
