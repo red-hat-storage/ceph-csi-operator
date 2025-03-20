@@ -213,6 +213,11 @@ spec:
                     additionalProperties:
                       type: string
                     type: object
+                  radosNamespace:
+                    type: string
+                    x-kubernetes-validations:
+                    - message: field is immutable
+                      rule: self == oldSelf
                   subVolumeGroup:
                     type: string
                 type: object
@@ -224,6 +229,9 @@ spec:
                 properties:
                   radosNamespace:
                     type: string
+                    x-kubernetes-validations:
+                    - message: field is immutable
+                      rule: self == oldSelf
                 type: object
             required:
             - cephConnectionRef
@@ -3880,10 +3888,6 @@ spec:
               nodePlugin:
                 description: Driver's plugin configuration
                 properties:
-                  EnableSeLinuxHostMount:
-                    description: Control the host mount of /etc/selinux for csi plugin
-                      pods. Defaults to false
-                    type: boolean
                   affinity:
                     description: Pod's affinity settings
                     properties:
@@ -4816,6 +4820,10 @@ spec:
                       type: string
                     description: Pod's annotations
                     type: object
+                  enableSeLinuxHostMount:
+                    description: Control the host mount of /etc/selinux for csi plugin
+                      pods. Defaults to false
+                    type: boolean
                   imagePullPolicy:
                     description: To indicate the image pull policy to be applied to
                       all the containers in the csi driver pods.
@@ -10775,10 +10783,6 @@ spec:
                   nodePlugin:
                     description: Driver's plugin configuration
                     properties:
-                      EnableSeLinuxHostMount:
-                        description: Control the host mount of /etc/selinux for csi
-                          plugin pods. Defaults to false
-                        type: boolean
                       affinity:
                         description: Pod's affinity settings
                         properties:
@@ -11716,6 +11720,10 @@ spec:
                           type: string
                         description: Pod's annotations
                         type: object
+                      enableSeLinuxHostMount:
+                        description: Control the host mount of /etc/selinux for csi
+                          plugin pods. Defaults to false
+                        type: boolean
                       imagePullPolicy:
                         description: To indicate the image pull policy to be applied
                           to all the containers in the csi driver pods.
