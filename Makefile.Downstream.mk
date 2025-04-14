@@ -62,9 +62,11 @@ bundle: kustomize operator-sdk manifests
 	mkdir -p build dist
 	@# as per kustomize patch files should be in the folder and subfolders of kustomization.yaml for security reasons
 	cp config/manager/downstream_tolerations.yaml build/manager_downstream_tolerations.yaml
+	cp config/manager/manager_priority_class_patch.yaml build/manager_priority_class_patch.yaml
 	cd build && echo "$$BUILD_INSTALLER_OVERLAY" > kustomization.yaml
 	cd build && $(KUSTOMIZE) edit add resource ../config/default/
 	cd build && $(KUSTOMIZE) edit add patch --path manager_downstream_tolerations.yaml --kind Deployment --name controller-manager
+	cd build && $(KUSTOMIZE) edit add patch --path manager_priority_class_patch.yaml
 	cd config/manifests/bases && $(KUSTOMIZE) edit add annotation --force 'olm.skipRange':"$(SKIP_RANGE)"
 	cd config/manifests/bases && $(KUSTOMIZE) edit add patch --name cephcsi-operator.v0.1.1 --kind ClusterServiceVersion\
 		--patch '[{"op": "replace", "path": "/spec/replaces", "value": "$(REPLACES)"}]'
