@@ -1,6 +1,6 @@
 #!/bin/bash
 
-git diff --quiet -I'^( )+createdAt: ' bundle
+git diff --quiet -I'^( )+createdAt: ' ./bundle
 if ((! $?)) ; then
-    git checkout --quiet bundle
+    git checkout --quiet ./bundle
 fi
