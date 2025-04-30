@@ -756,6 +756,36 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 								),
 							})
 						}
+						// ODF Snapshotter Sidecar Container
+						if snPolicy == csiv1a1.VolumeGroupSnapshotPolicy {
+							containers = append(containers, corev1.Container{
+								Name:            "odf-csi-snapshotter",
+								ImagePullPolicy: imagePullPolicy,
+								Image:           r.images["odf-snapshotter"],
+								Args: utils.DeleteZeroValues(
+									append(
+										slices.Clone(leaderElectionSettingsArg),
+										utils.LeaderElectionContainerArg,
+										utils.LogVerbosityContainerArg(logVerbosity),
+										utils.CsiAddressContainerArg,
+										utils.TimeoutContainerArg(grpcTimeout),
+										utils.If(!r.isNfsDriver(), utils.ExtraCreateMetadataContainerArg, ""),
+										utils.If(
+											r.driverType != NfsDriverType,
+											utils.EnableVolumeGroupSnapshotsContainerArg,
+											"",
+										),
+									),
+								),
+								VolumeMounts: []corev1.VolumeMount{
+									utils.SocketDirVolumeMount,
+								},
+								Resources: ptr.Deref(
+									pluginSpec.Resources.Snapshotter,
+									corev1.ResourceRequirements{},
+								),
+							})
+						}
 						// Addons Sidecar Container
 						if !r.isNfsDriver() && ptr.Deref(r.driver.Spec.DeployCsiAddons, false) {
 							port := r.controllerPluginCsiAddonsContainerPort()

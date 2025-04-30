@@ -66,6 +66,16 @@ The following table lists the configurable parameters of the ceph-csi-operator c
 | `nfsNodepluginSa.serviceAccount.annotations` |  | `{}` |
 | `rbdCtrlpluginSa.serviceAccount.annotations` |  | `{}` |
 | `rbdNodepluginSa.serviceAccount.annotations` |  | `{}` |
+| `snapshotController.replicas` |  | `2` |
+| `snapshotController.serviceAccount.annotations` |  | `{}` |
+| `snapshotController.snapshotController.args[0]` |  | `"--v=5"` |
+| `snapshotController.snapshotController.args[1]` |  | `"--leader-election=true"` |
+| `snapshotController.snapshotController.image.repository` |  | `"registry.k8s.io/sig-storage/snapshot-controller"` |
+| `snapshotController.snapshotController.image.tag` |  | `"v8.2.0"` |
+| `snapshotController.snapshotController.imagePullPolicy` |  | `"IfNotPresent"` |
+| `snapshotController.strategy.rollingUpdate.maxSurge` |  | `0` |
+| `snapshotController.strategy.rollingUpdate.maxUnavailable` |  | `1` |
+| `snapshotController.strategy.type` |  | `"RollingUpdate"` |
 
 ### **Development Build**
 

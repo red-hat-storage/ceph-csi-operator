@@ -32,3 +32,11 @@ resources:
 - metrics_auth_role.yaml
 - metrics_auth_role_binding.yaml
 - metrics_reader_role.yaml
+# The following RBAC configurations are for the external-snapshotter
+# controller that will be deployed as part of the ceph-csi-operator
+# bundle.
+- csi_snapshotter_role.yaml
+- csi_snapshotter_role_binding.yaml
+- csi_snapshotter_cluster_role.yaml
+- csi_snapshotter_cluster_role_binding.yaml
+- csi_snapshotter_service_account.yaml
