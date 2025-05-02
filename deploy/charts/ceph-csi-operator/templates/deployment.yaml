@@ -58,3 +58,42 @@ spec:
         8 }}
       serviceAccountName: {{ include "ceph-csi-operator.fullname" . }}-controller-manager
       terminationGracePeriodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ceph-csi-operator.fullname" . }}-snapshot-controller
+  labels:
+  {{- include "ceph-csi-operator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.snapshotController.replicas }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.snapshotController.strategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.snapshotController.strategy.rollingUpdate.maxUnavailable
+        }}
+    type: {{ .Values.snapshotController.strategy.type | quote }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: snapshot-controller
+    {{- include "ceph-csi-operator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: snapshot-controller
+      {{- include "ceph-csi-operator.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - args: {{- toYaml .Values.snapshotController.snapshotController.args | nindent 8
+          }}
+        env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: '{{ .Values.snapshotController.snapshotController.image.repository }}:{{
+          .Values.snapshotController.snapshotController.image.tag | default .Chart.AppVersion
+          }}'
+        imagePullPolicy: {{ .Values.snapshotController.snapshotController.imagePullPolicy
+          }}
+        name: snapshot-controller
+        resources: {}
+      serviceAccountName: {{ include "ceph-csi-operator.fullname" . }}-snapshot-controller

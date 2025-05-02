@@ -3,6 +3,7 @@ IMAGE_REGISTRY ?= quay.io
 REGISTRY_NAMESPACE ?= cephcsi
 IMAGE_TAG ?= latest
 IMAGE_NAME ?= ceph-csi-operator
+SNAPSHOTTER_IMG ?= registry.k8s.io/sig-storage/snapshot-controller:v8.2.0
 
 # Allow customization of the name prefix and/or namespace
 NAME_PREFIX ?= ceph-csi-operator-
@@ -58,6 +59,8 @@ patches:
 images:
 - name: controller
   newName: ${IMG}
+- name: snapshot-controller
+  newName: ${SNAPSHOTTER_IMG}
 endef
 export BUILD_INSTALLER_OVERLAY
 

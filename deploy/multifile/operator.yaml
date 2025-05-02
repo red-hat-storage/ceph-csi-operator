@@ -16,6 +16,12 @@ metadata:
   name: ceph-csi-operator-controller-manager
   namespace: ceph-csi-operator-system
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ceph-csi-operator-snapshot-controller
+  namespace: ceph-csi-operator-system
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -56,6 +62,24 @@ rules:
   verbs:
   - create
   - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ceph-csi-operator-snapshot-controller-leaderelection
+  namespace: ceph-csi-operator-system
+rules:
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - watch
+  - list
+  - delete
+  - update
+  - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -436,6 +460,127 @@ rules:
   - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-operator-snapshot-controller-runner
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - list
+  - watch
+  - create
+  - update
+  - patch
+- apiGroups:
+  - snapshot.storage.k8s.io
+  resources:
+  - volumesnapshotclasses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - snapshot.storage.k8s.io
+  resources:
+  - volumesnapshotcontents
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - delete
+  - patch
+- apiGroups:
+  - snapshot.storage.k8s.io
+  resources:
+  - volumesnapshotcontents/status
+  verbs:
+  - patch
+- apiGroups:
+  - snapshot.storage.k8s.io
+  resources:
+  - volumesnapshots
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - snapshot.storage.k8s.io
+  resources:
+  - volumesnapshots/status
+  verbs:
+  - update
+  - patch
+- apiGroups:
+  - groupsnapshot.storage.openshift.io
+  resources:
+  - volumegroupsnapshotclasses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - groupsnapshot.storage.openshift.io
+  resources:
+  - volumegroupsnapshotcontents
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - delete
+  - patch
+- apiGroups:
+  - groupsnapshot.storage.openshift.io
+  resources:
+  - volumegroupsnapshotcontents/status
+  verbs:
+  - patch
+- apiGroups:
+  - groupsnapshot.storage.openshift.io
+  resources:
+  - volumegroupsnapshots
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+- apiGroups:
+  - groupsnapshot.storage.openshift.io
+  resources:
+  - volumegroupsnapshots/status
+  verbs:
+  - update
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   labels:
@@ -450,6 +595,20 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: ceph-csi-operator-controller-manager
+  namespace: ceph-csi-operator-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ceph-csi-operator-snapshot-controller-leaderelection
+  namespace: ceph-csi-operator-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ceph-csi-operator-snapshot-controller-leaderelection
+subjects:
+- kind: ServiceAccount
+  name: ceph-csi-operator-snapshot-controller
   namespace: ceph-csi-operator-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -482,6 +641,19 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: ceph-csi-operator-controller-manager
+  namespace: ceph-csi-operator-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ceph-csi-operator-snapshot-controller-role
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ceph-csi-operator-snapshot-controller-runner
+subjects:
+- kind: ServiceAccount
+  name: ceph-csi-operator-snapshot-controller
   namespace: ceph-csi-operator-system
 ---
 apiVersion: apps/v1
@@ -550,3 +722,33 @@ spec:
         runAsNonRoot: true
       serviceAccountName: ceph-csi-operator-controller-manager
       terminationGracePeriodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ceph-csi-operator-snapshot-controller
+  namespace: ceph-csi-operator-system
+spec:
+  minReadySeconds: 35
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: snapshot-controller
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: snapshot-controller
+    spec:
+      containers:
+      - args:
+        - --v=5
+        - --leader-election=true
+        image: registry.k8s.io/sig-storage/snapshot-controller:v8.2.0
+        imagePullPolicy: IfNotPresent
+        name: snapshot-controller
+      serviceAccountName: ceph-csi-operator-snapshot-controller

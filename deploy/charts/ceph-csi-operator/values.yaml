@@ -45,3 +45,20 @@ rbdCtrlpluginSa:
 rbdNodepluginSa:
   serviceAccount:
     annotations: {}
+snapshotController:
+  replicas: 2
+  serviceAccount:
+    annotations: {}
+  snapshotController:
+    args:
+    - --v=5
+    - --leader-election=true
+    image:
+      repository: registry.k8s.io/sig-storage/snapshot-controller
+      tag: v8.2.0
+    imagePullPolicy: IfNotPresent
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
