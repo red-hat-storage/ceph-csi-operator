@@ -153,6 +153,49 @@ rules:
   - update
   - patch
 - apiGroups:
+  - groupsnapshot.storage.openshift.io
+  resources:
+  - volumegroupsnapshotclasses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - groupsnapshot.storage.openshift.io
+  resources:
+  - volumegroupsnapshotcontents
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - delete
+  - patch
+- apiGroups:
+  - groupsnapshot.storage.openshift.io
+  resources:
+  - volumegroupsnapshotcontents/status
+  verbs:
+  - patch
+- apiGroups:
+  - groupsnapshot.storage.openshift.io
+  resources:
+  - volumegroupsnapshots
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+- apiGroups:
+  - groupsnapshot.storage.openshift.io
+  resources:
+  - volumegroupsnapshots/status
+  verbs:
+  - update
+  - patch
+- apiGroups:
   - ""
   resources:
   - serviceaccounts
