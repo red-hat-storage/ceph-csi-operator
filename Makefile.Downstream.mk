@@ -62,10 +62,13 @@ bundle: kustomize operator-sdk manifests
 	mkdir -p build dist
 	cd build && echo "$$BUILD_INSTALLER_OVERLAY" > kustomization.yaml
 	cd config/manifests/bases && $(KUSTOMIZE) edit add annotation --force 'olm.skipRange':"$(SKIP_RANGE)"
+	cd config/manifests/bases && $(KUSTOMIZE) edit add patch --name cephcsi-operator.v0.1.1 --kind ClusterServiceVersion\
+		--patch '[{"op": "replace", "path": "/spec/replaces", "value": "$(REPLACES)"}]'
 	cd config/manifests && $(KUSTOMIZE) create --resources bases,../../build
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle \
 		--overwrite --manifests --metadata --package $(PACKAGE_NAME) --version $(BUNDLE_VERSION) $(BUNDLE_METADATA_OPTS) \
 		--extra-service-accounts $(EXTRA_SERVICE_ACCOUNTS)
+	cd config/manifests/bases && yq -i 'del(.patches)' kustomization.yaml
 	hack/update-csv-timestamp.sh
 	rm -rf build
 
