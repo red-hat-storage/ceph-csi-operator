@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: ceph-csi-system
+namePrefix: ceph-csi-
+patches:
+- patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: CSI_SERVICE_ACCOUNT_PREFIX
+        value: ceph-csi-
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: WATCH_NAMESPACE
+        value: ""
+  target:
+    kind: Deployment
+    name: controller-manager
+- path: manager_downstream_tolerations.yaml
+  target:
+    kind: Deployment
+    name: controller-manager
+images:
+- name: controller
+  newName: quay.io/ocs-dev/cephcsi-operator:latest
+resources:
+- ../config/default/
