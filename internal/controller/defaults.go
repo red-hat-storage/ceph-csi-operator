@@ -28,13 +28,14 @@ import (
 )
 
 var imageDefaults = map[string]string{
-	"provisioner": "registry.k8s.io/sig-storage/csi-provisioner:v5.0.1",
-	"attacher":    "registry.k8s.io/sig-storage/csi-attacher:v4.6.1",
-	"resizer":     "registry.k8s.io/sig-storage/csi-resizer:v1.11.1",
-	"snapshotter": "registry.k8s.io/sig-storage/csi-snapshotter:v8.2.0",
-	"registrar":   "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.11.1",
-	"plugin":      "quay.io/cephcsi/cephcsi:v3.13.1",
-	"addons":      "quay.io/csiaddons/k8s-sidecar:v0.12.0",
+	"provisioner":     "registry.k8s.io/sig-storage/csi-provisioner:v5.0.1",
+	"attacher":        "registry.k8s.io/sig-storage/csi-attacher:v4.6.1",
+	"resizer":         "registry.k8s.io/sig-storage/csi-resizer:v1.11.1",
+	"snapshotter":     "registry.k8s.io/sig-storage/csi-snapshotter:v8.2.0",
+	"odf-snapshotter": "quay.io/ocs-dev/csi-snapshotter:latest",
+	"registrar":       "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.11.1",
+	"plugin":          "quay.io/cephcsi/cephcsi:v3.13.1",
+	"addons":          "quay.io/csiaddons/k8s-sidecar:v0.12.0",
 }
 
 const (
@@ -86,4 +87,8 @@ var operatorConfigName = utils.Call(func() string {
 
 var serviceAccountPrefix = utils.Call(func() string {
 	return os.Getenv("CSI_SERVICE_ACCOUNT_PREFIX")
+})
+
+var deployPrivateSnapshotSidecar = utils.Call(func() string {
+	return os.Getenv("ENABLE_PRIVATE_VOLUME_GROUPSNAPSHOT")
 })

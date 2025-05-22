@@ -55,6 +55,39 @@ SERVICE_ACCOUNTS := \
 # Remove spaces using tr
 EXTRA_SERVICE_ACCOUNTS := $(shell echo $(SERVICE_ACCOUNTS) | tr -d ' ')
 
+# Define the content of the temporary top-most kustomize overlay for the
+# build-installer, build-multifile-installer and deploy targets
+define BUNDLE_INSTALLER_OVERLAY
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: $(NAMESPACE)
+namePrefix: $(NAME_PREFIX)
+patches:
+- patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: CSI_SERVICE_ACCOUNT_PREFIX
+        value: $(NAME_PREFIX)
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: WATCH_NAMESPACE
+        value: $(WATCH_NAMESPACE)
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: ENABLE_PRIVATE_VOLUME_GROUPSNAPSHOT
+        value: true
+  target:
+    kind: Deployment
+    name: controller-manager
+images:
+- name: controller
+  newName: ${IMG}
+endef
+export BUNDLE_INSTALLER_OVERLAY
+
 .PHONY: bundle
 bundle: kustomize operator-sdk manifests
 	rm -rf bundle
@@ -62,7 +95,7 @@ bundle: kustomize operator-sdk manifests
 	mkdir -p build dist
 	@# as per kustomize patch files should be in the folder and subfolders of kustomization.yaml for security reasons
 	cp config/manager/downstream_tolerations.yaml build/manager_downstream_tolerations.yaml
-	cd build && echo "$$BUILD_INSTALLER_OVERLAY" > kustomization.yaml
+	cd build && echo "$$BUNDLE_INSTALLER_OVERLAY" > kustomization.yaml
 	cd build && $(KUSTOMIZE) edit add resource ../config/default/
 	cd build && $(KUSTOMIZE) edit add patch --path manager_downstream_tolerations.yaml --kind Deployment --name controller-manager
 	cd config/manifests/bases && $(KUSTOMIZE) edit add annotation --force 'olm.skipRange':"$(SKIP_RANGE)"
