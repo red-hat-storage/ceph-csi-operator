@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2025-03-28T08:09:36Z"
+    createdAt: "2025-05-26T11:11:51Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -181,6 +181,31 @@ spec:
           - patch
         - apiGroups:
           - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotcontents/status
+          verbs:
+          - update
+          - patch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
+          resources:
+          - volumegroupsnapshotclasses
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
+          resources:
+          - volumegroupsnapshotcontents
+          verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
           resources:
           - volumegroupsnapshotcontents/status
           verbs:
@@ -638,6 +663,31 @@ spec:
           - update
           - patch
         - apiGroups:
+          - groupsnapshot.storage.openshift.io
+          resources:
+          - volumegroupsnapshotclasses
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
+          resources:
+          - volumegroupsnapshotcontents
+          verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
+          resources:
+          - volumegroupsnapshotcontents/status
+          verbs:
+          - update
+          - patch
+        - apiGroups:
           - replication.storage.openshift.io
           resources:
           - volumegroupreplicationcontents
@@ -748,6 +798,8 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: ENABLE_ODF_VOLUME_GROUPSNAPSHOT
+                  value: "true"
                 image: quay.io/ocs-dev/cephcsi-operator:latest
                 livenessProbe:
                   httpGet:
