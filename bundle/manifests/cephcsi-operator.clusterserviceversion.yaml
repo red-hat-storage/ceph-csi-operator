@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2025-03-28T08:09:36Z"
+    createdAt: "2025-06-06T08:07:23Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -17,16 +17,31 @@ spec:
     owned:
     - kind: CephConnection
       name: cephconnections.csi.ceph.io
+      version: v1
+    - kind: CephConnection
+      name: cephconnections.csi.ceph.io
       version: v1alpha1
+    - kind: ClientProfileMapping
+      name: clientprofilemappings.csi.ceph.io
+      version: v1
     - kind: ClientProfileMapping
       name: clientprofilemappings.csi.ceph.io
       version: v1alpha1
     - kind: ClientProfile
       name: clientprofiles.csi.ceph.io
+      version: v1
+    - kind: ClientProfile
+      name: clientprofiles.csi.ceph.io
       version: v1alpha1
     - kind: Driver
       name: drivers.csi.ceph.io
+      version: v1
+    - kind: Driver
+      name: drivers.csi.ceph.io
       version: v1alpha1
+    - kind: OperatorConfig
+      name: operatorconfigs.csi.ceph.io
+      version: v1
     - kind: OperatorConfig
       name: operatorconfigs.csi.ceph.io
       version: v1alpha1
@@ -181,6 +196,31 @@ spec:
           - patch
         - apiGroups:
           - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotcontents/status
+          verbs:
+          - update
+          - patch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
+          resources:
+          - volumegroupsnapshotclasses
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
+          resources:
+          - volumegroupsnapshotcontents
+          verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
           resources:
           - volumegroupsnapshotcontents/status
           verbs:
@@ -632,6 +672,31 @@ spec:
           - patch
         - apiGroups:
           - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotcontents/status
+          verbs:
+          - update
+          - patch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
+          resources:
+          - volumegroupsnapshotclasses
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
+          resources:
+          - volumegroupsnapshotcontents
+          verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+        - apiGroups:
+          - groupsnapshot.storage.openshift.io
           resources:
           - volumegroupsnapshotcontents/status
           verbs:
