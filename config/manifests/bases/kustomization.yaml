@@ -1,6 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- cephcsi-operator.clusterserviceversion.yaml
+  - cephcsi-operator.clusterserviceversion.yaml
 commonAnnotations:
   olm.skipRange: ""
