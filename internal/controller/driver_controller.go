@@ -50,6 +50,7 @@ import (
 
 	csiv1 "github.com/ceph/ceph-csi-operator/api/v1"
 	"github.com/ceph/ceph-csi-operator/internal/utils"
+	sm "github.com/kubernetes-csi/external-snapshot-metadata/client/apis/snapshotmetadataservice/v1alpha1"
 )
 
 //+kubebuilder:rbac:groups=csi.ceph.io,resources=drivers,verbs=get;list;watch;create;update;patch;delete
@@ -61,6 +62,7 @@ import (
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="cbt.storage.k8s.io",resources=snapshotmetadataservices,verbs=get;list;watch;
 
 type DriverType string
 
@@ -227,6 +229,16 @@ func (r *DriverReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	return ctrl.Result{}, err
 }
 
+func (r *driverReconcile) hasSnapshotMetadataServiceCr() (bool, error) {
+	sms := &sm.SnapshotMetadataService{}
+	sms.Name = r.driver.Name
+	if err := r.Get(r.ctx, client.ObjectKeyFromObject(sms), sms); client.IgnoreNotFound(err) != nil {
+		return false, fmt.Errorf("failed to get SnapshotMetadataService resource: %w", err)
+	}
+
+	return sms.UID != "", nil
+}
+
 func (r *driverReconcile) reconcile() error {
 	// Load the driver desired state based on driver resource, operator config resource and default values.
 	if err := r.LoadAndValidateDesiredState(); err != nil {
@@ -238,9 +250,9 @@ func (r *driverReconcile) reconcile() error {
 		r.reconcileLogRotateConfigMap,
 		r.reconcileK8sCsiDriver,
 		r.reconcileControllerPluginDeployment,
-		r.reconcileNodePluginDeamonSet,
+		r.reconcileNodePluginDaemonSet,
 		r.reconcileLivenessService,
-		r.reconcileNodePluginDeamonSetForCsiAddons,
+		r.reconcileNodePluginDaemonSetForCsiAddons,
 	}
 
 	// Concurrently reconcile different aspects of the clusters actual state to meet
@@ -919,6 +931,44 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 								},
 							})
 						}
+						// CSI snapshot-metadata Sidecar Container
+						if r.isRbdDriver() {
+							if deploy, err := r.hasSnapshotMetadataServiceCr(); err != nil {
+								r.log.Error(err, "Failed to check for SnapshotMetadataService CR")
+							} else if deploy {
+								containers = append(containers, corev1.Container{
+									Name:            "csi-snapshot-metadata",
+									ImagePullPolicy: imagePullPolicy,
+									Image:           r.images["snapshot-metadata"],
+									Args: utils.DeleteZeroValues(
+										[]string{
+											utils.LogVerbosityContainerArg(logVerbosity),
+											utils.TimeoutContainerArg(grpcTimeout),
+											utils.SnapshotMetadataGrpcServicePortArg,
+											utils.CsiAddressContainerArg,
+											utils.SnapshotMetadataTlsCertArg,
+											utils.SnapshotMetadataTlsKeyArg,
+										},
+									),
+									Ports: []corev1.ContainerPort{
+										utils.SnapshotMetadataGrpcPort,
+									},
+									VolumeMounts: utils.Call(func() []corev1.VolumeMount {
+										mounts := []corev1.VolumeMount{}
+										tlsMountIndex := slices.IndexFunc(pluginSpec.Volumes, func(vol csiv1.VolumeSpec) bool {
+											return vol.Volume.Name == "tls-key"
+										})
+										if tlsMountIndex != -1 {
+											mounts = append(mounts, pluginSpec.Volumes[tlsMountIndex].Mount)
+										}
+										mounts = append(mounts, utils.SocketDirVolumeMount)
+
+										return mounts
+									}),
+								})
+							}
+						}
+
 						return containers
 					}),
 					Volumes: utils.Call(func() []corev1.Volume {
@@ -976,7 +1026,7 @@ func (r *driverReconcile) controllerPluginCsiAddonsContainerPort() corev1.Contai
 	return port
 }
 
-func (r *driverReconcile) reconcileNodePluginDeamonSetForCsiAddons() error {
+func (r *driverReconcile) reconcileNodePluginDaemonSetForCsiAddons() error {
 	daemonSet := &appsv1.DaemonSet{}
 	daemonSet.Name = r.generateName("nodeplugin-csi-addons")
 	daemonSet.Namespace = r.driver.Namespace
@@ -1185,7 +1235,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSetForCsiAddons() error {
 	return err
 }
 
-func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
+func (r *driverReconcile) reconcileNodePluginDaemonSet() error {
 	daemonSet := &appsv1.DaemonSet{}
 	daemonSet.Name = r.generateName("nodeplugin")
 	daemonSet.Namespace = r.driver.Namespace
@@ -1639,6 +1689,9 @@ func mergeDriverSpecs(dest, src *csiv1.DriverSpec) {
 	}
 	if dest.GenerateOMapInfo == nil {
 		dest.GenerateOMapInfo = src.GenerateOMapInfo
+	}
+	if dest.EnableFencing == nil {
+		dest.EnableFencing = src.EnableFencing
 	}
 	if dest.FsGroupPolicy == "" {
 		dest.FsGroupPolicy = src.FsGroupPolicy
