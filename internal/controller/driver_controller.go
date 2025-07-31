@@ -26,6 +26,7 @@ import (
 	"reflect"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/go-logr/logr"
@@ -49,6 +50,7 @@ import (
 
 	csiv1 "github.com/ceph/ceph-csi-operator/api/v1"
 	"github.com/ceph/ceph-csi-operator/internal/utils"
+	sm "github.com/kubernetes-csi/external-snapshot-metadata/client/apis/snapshotmetadataservice/v1alpha1"
 )
 
 //+kubebuilder:rbac:groups=csi.ceph.io,resources=drivers,verbs=get;list;watch;create;update;patch;delete
@@ -60,6 +62,7 @@ import (
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="cbt.storage.k8s.io",resources=snapshotmetadataservices,verbs=get;list;watch;
 
 type DriverType string
 
@@ -72,7 +75,10 @@ const (
 const (
 	// Annotation name for ownerref information
 	ownerRefAnnotationKey = "csi.ceph.io/ownerref"
-	logRotateCmd          = `while true; do logrotate --verbose /logrotate-config/csi; sleep 15m; done`
+	// Annotation to enable CSI-Addons volume condition reporter
+	driverCSIAddonsFeatureVolumeCondition = "addons.csi.ceph.io/volume-condition"
+
+	logRotateCmd = `while true; do logrotate --verbose /logrotate-config/csi; sleep 15m; done`
 )
 
 // A regexp used to parse driver's prefix and type from the full name
@@ -223,6 +229,16 @@ func (r *DriverReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	return ctrl.Result{}, err
 }
 
+func (r *driverReconcile) hasSnapshotMetadataServiceCr() (bool, error) {
+	sms := &sm.SnapshotMetadataService{}
+	sms.Name = r.driver.Name
+	if err := r.Get(r.ctx, client.ObjectKeyFromObject(sms), sms); client.IgnoreNotFound(err) != nil {
+		return false, fmt.Errorf("failed to get SnapshotMetadataService resource: %w", err)
+	}
+
+	return sms.UID != "", nil
+}
+
 func (r *driverReconcile) reconcile() error {
 	// Load the driver desired state based on driver resource, operator config resource and default values.
 	if err := r.LoadAndValidateDesiredState(); err != nil {
@@ -234,12 +250,9 @@ func (r *driverReconcile) reconcile() error {
 		r.reconcileLogRotateConfigMap,
 		r.reconcileK8sCsiDriver,
 		r.reconcileControllerPluginDeployment,
-		r.reconcileNodePluginDeamonSet,
+		r.reconcileNodePluginDaemonSet,
 		r.reconcileLivenessService,
-	}
-
-	if r.isRdbDriver() {
-		reconcilers = append(reconcilers, r.reconcileNodePluginDeamonSetForCsiAddons)
+		r.reconcileNodePluginDaemonSetForCsiAddons,
 	}
 
 	// Concurrently reconcile different aspects of the clusters actual state to meet
@@ -561,7 +574,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 
 		// TODO: Move the Topology field from NodePlugin to Driver.Spec
 		nodePluginSpec := cmp.Or(r.driver.Spec.NodePlugin, &csiv1.NodePluginSpec{})
-		topology := r.isRdbDriver() && nodePluginSpec.Topology != nil
+		topology := r.isRbdDriver() && nodePluginSpec.Topology != nil
 
 		deploy.Spec = appsv1.DeploymentSpec{
 			Replicas: pluginSpec.Replicas,
@@ -601,6 +614,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 										utils.DriverNameContainerArg(r.driver.Name),
 										utils.PidlimitContainerArg,
 										utils.SetMetadataContainerArg(ptr.Deref(r.driver.Spec.EnableMetadata, false)),
+										utils.SetFencingContainerArg(ptr.Deref(r.driver.Spec.EnableFencing, false)),
 										utils.ClusterNameContainerArg(ptr.Deref(r.driver.Spec.ClusterName, "")),
 										utils.If(forceKernelClient, utils.ForceCephKernelClientContainerArg, ""),
 										utils.If(
@@ -642,7 +656,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 									if r.driver.Spec.Encryption != nil {
 										mounts = append(mounts, utils.KmsConfigVolumeMount)
 									}
-									if r.isRdbDriver() {
+									if r.isRbdDriver() {
 										mounts = append(mounts, utils.OidcTokenVolumeMount)
 									}
 									if logRotationEnabled {
@@ -671,7 +685,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 										utils.DefaultFsTypeContainerArg,
 										utils.PreventVolumeModeConversionContainerArg,
 										utils.HonorPVReclaimPolicyContainerArg,
-										utils.If(r.isRdbDriver(), utils.DefaultFsTypeContainerArg, ""),
+										utils.If(r.isRbdDriver(), utils.DefaultFsTypeContainerArg, ""),
 										utils.TopologyContainerArg(topology),
 										utils.If(!r.isNfsDriver(), utils.ExtraCreateMetadataContainerArg, ""),
 									),
@@ -720,7 +734,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 										utils.LogVerbosityContainerArg(logVerbosity),
 										utils.CsiAddressContainerArg,
 										utils.TimeoutContainerArg(grpcTimeout),
-										utils.If(r.isRdbDriver(), utils.DefaultFsTypeContainerArg, ""),
+										utils.If(r.isRbdDriver(), utils.DefaultFsTypeContainerArg, ""),
 									),
 								),
 								VolumeMounts: []corev1.VolumeMount{
@@ -845,7 +859,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 							})
 						}
 						// OMap Generator Sidecar Container
-						if r.isRdbDriver() && ptr.Deref(r.driver.Spec.GenerateOMapInfo, false) {
+						if r.isRbdDriver() && ptr.Deref(r.driver.Spec.GenerateOMapInfo, false) {
 							containers = append(containers, corev1.Container{
 								Name:            "csi-omap-generator",
 								Image:           r.images["plugin"],
@@ -917,6 +931,44 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 								},
 							})
 						}
+						// CSI snapshot-metadata Sidecar Container
+						if r.isRbdDriver() {
+							if deploy, err := r.hasSnapshotMetadataServiceCr(); err != nil {
+								r.log.Error(err, "Failed to check for SnapshotMetadataService CR")
+							} else if deploy {
+								containers = append(containers, corev1.Container{
+									Name:            "csi-snapshot-metadata",
+									ImagePullPolicy: imagePullPolicy,
+									Image:           r.images["snapshot-metadata"],
+									Args: utils.DeleteZeroValues(
+										[]string{
+											utils.LogVerbosityContainerArg(logVerbosity),
+											utils.TimeoutContainerArg(grpcTimeout),
+											utils.SnapshotMetadataGrpcServicePortArg,
+											utils.CsiAddressContainerArg,
+											utils.SnapshotMetadataTlsCertArg,
+											utils.SnapshotMetadataTlsKeyArg,
+										},
+									),
+									Ports: []corev1.ContainerPort{
+										utils.SnapshotMetadataGrpcPort,
+									},
+									VolumeMounts: utils.Call(func() []corev1.VolumeMount {
+										mounts := []corev1.VolumeMount{}
+										tlsMountIndex := slices.IndexFunc(pluginSpec.Volumes, func(vol csiv1.VolumeSpec) bool {
+											return vol.Volume.Name == "tls-key"
+										})
+										if tlsMountIndex != -1 {
+											mounts = append(mounts, pluginSpec.Volumes[tlsMountIndex].Mount)
+										}
+										mounts = append(mounts, utils.SocketDirVolumeMount)
+
+										return mounts
+									}),
+								})
+							}
+						}
+
 						return containers
 					}),
 					Volumes: utils.Call(func() []corev1.Volume {
@@ -974,14 +1026,45 @@ func (r *driverReconcile) controllerPluginCsiAddonsContainerPort() corev1.Contai
 	return port
 }
 
-func (r *driverReconcile) reconcileNodePluginDeamonSetForCsiAddons() error {
+func (r *driverReconcile) reconcileNodePluginDaemonSetForCsiAddons() error {
 	daemonSet := &appsv1.DaemonSet{}
 	daemonSet.Name = r.generateName("nodeplugin-csi-addons")
 	daemonSet.Namespace = r.driver.Namespace
 
 	log := r.log.WithValues("csiAddonsDaemonSetName", daemonSet.Name)
 
-	if !ptr.Deref(r.driver.Spec.DeployCsiAddons, false) {
+	withCsiAddonsDaemonSet := false
+	withCsiAddonsVolumeCondition := false
+
+	if r.isRbdDriver() {
+		withCsiAddonsDaemonSet = ptr.Deref(r.driver.Spec.DeployCsiAddons, false)
+	}
+
+	// check if the driver wants CSI-Addons features
+	if feature := r.driver.GetAnnotations()[driverCSIAddonsFeatureVolumeCondition]; feature != "" {
+		enabled, err := strconv.ParseBool(feature)
+		if err != nil {
+			r.log.Error(
+				err,
+				"Unable to parse annotation on driver.csi.ceph.io",
+				"name",
+				client.ObjectKeyFromObject(&r.driver),
+				driverCSIAddonsFeatureVolumeCondition,
+				feature,
+			)
+			return err
+		}
+
+		withCsiAddonsVolumeCondition = enabled
+		// if the feature is enabled, enable the daemonset too
+		withCsiAddonsDaemonSet = withCsiAddonsDaemonSet || withCsiAddonsVolumeCondition
+	}
+
+	if r.isNfsDriver() {
+		withCsiAddonsDaemonSet = false
+	}
+
+	if !withCsiAddonsDaemonSet {
 		if err := r.Delete(r.ctx, daemonSet); client.IgnoreNotFound(err) != nil {
 			log.Error(err, "failed to delete csi addons daemonset")
 			return err
@@ -1062,6 +1145,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSetForCsiAddons() error {
 										utils.If(logRotationEnabled, utils.LogToStdErrContainerArg, ""),
 										utils.If(logRotationEnabled, utils.AlsoLogToStdErrContainerArg, ""),
 										utils.If(logRotationEnabled, utils.LogFileContainerArg("csi-addons"), ""),
+										utils.If(withCsiAddonsVolumeCondition, utils.CsiAddonsVolumeConditionArg, ""),
 									},
 								),
 								Ports: []corev1.ContainerPort{
@@ -1079,6 +1163,12 @@ func (r *driverReconcile) reconcileNodePluginDeamonSetForCsiAddons() error {
 									}
 									if logRotationEnabled {
 										mounts = append(mounts, utils.LogsDirVolumeMount)
+									}
+									if withCsiAddonsVolumeCondition {
+										mounts = append(mounts,
+											utils.PluginMountDirVolumeMount(kubeletDirPath),
+											utils.PodsMountDirVolumeMount(kubeletDirPath),
+										)
 									}
 									return mounts
 								}),
@@ -1124,6 +1214,14 @@ func (r *driverReconcile) reconcileNodePluginDeamonSetForCsiAddons() error {
 								utils.LogRotateDirVolumeName(r.driver.Name),
 							)
 						}
+
+						if withCsiAddonsVolumeCondition {
+							volumes = append(
+								volumes,
+								utils.PluginMountDirVolume(kubeletDirPath),
+								utils.PodsMountDirVolume(kubeletDirPath),
+							)
+						}
 						return volumes
 					}),
 				},
@@ -1137,7 +1235,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSetForCsiAddons() error {
 	return err
 }
 
-func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
+func (r *driverReconcile) reconcileNodePluginDaemonSet() error {
 	daemonSet := &appsv1.DaemonSet{}
 	daemonSet.Name = r.generateName("nodeplugin")
 	daemonSet.Namespace = r.driver.Namespace
@@ -1162,7 +1260,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
 		kubeletDirPath := cmp.Or(pluginSpec.KubeletDirPath, defaultKubeletDirPath)
 		forceKernelClient := r.isCephFsDriver() && r.driver.Spec.CephFsClientType == csiv1.KernelCephFsClient
 
-		topology := r.isRdbDriver() && pluginSpec.Topology != nil
+		topology := r.isRbdDriver() && pluginSpec.Topology != nil
 		domainLabels := cmp.Or(pluginSpec.Topology, &csiv1.TopologySpec{}).DomainLabels
 		logRotationSpec := cmp.Or(r.driver.Spec.Log, &csiv1.LogSpec{}).Rotation
 		logRotationEnabled := logRotationSpec != nil
@@ -1189,7 +1287,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
 					ServiceAccountName: serviceAccountName,
 					PriorityClassName:  ptr.Deref(pluginSpec.PrioritylClassName, ""),
 					HostNetwork:        true,
-					HostPID:            r.isRdbDriver(),
+					HostPID:            r.isRbdDriver(),
 					// to use e.g. Rook orchestrated cluster, and mons' FQDN is
 					// resolved through k8s service, set dns policy to cluster first
 					DNSPolicy:   corev1.DNSClusterFirstWithHostNet,
@@ -1216,6 +1314,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
 										utils.NodeServerContainerArg,
 										utils.NodeIdContainerArg,
 										utils.DriverNameContainerArg(r.driver.Name),
+										utils.SetFencingContainerArg(ptr.Deref(r.driver.Spec.EnableFencing, false)),
 										utils.EndpointContainerArg,
 										utils.PidlimitContainerArg,
 										utils.If(forceKernelClient, utils.ForceCephKernelClientContainerArg, ""),
@@ -1225,7 +1324,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
 											"",
 										),
 										utils.If(
-											r.isRdbDriver(),
+											r.isRbdDriver(),
 											utils.StagingPathContainerArg(kubeletDirPath),
 											"",
 										),
@@ -1287,7 +1386,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
 									if r.isCephFsDriver() {
 										mounts = append(mounts, utils.CsiMountInfoVolumeMount)
 									}
-									if r.isRdbDriver() {
+									if r.isRbdDriver() {
 										mounts = append(mounts, utils.OidcTokenVolumeMount)
 									}
 									if logRotationEnabled {
@@ -1427,7 +1526,7 @@ func (r *driverReconcile) reconcileNodePluginDeamonSet() error {
 								utils.KmsConfigVolume(&r.driver.Spec.Encryption.ConfigMapRef),
 							)
 						}
-						if r.isRdbDriver() {
+						if r.isRbdDriver() {
 							volumes = append(
 								volumes,
 								utils.OidcTokenVolume,
@@ -1496,7 +1595,7 @@ func (r *driverReconcile) reconcileLivenessService() error {
 	}
 }
 
-func (r *driverReconcile) isRdbDriver() bool {
+func (r *driverReconcile) isRbdDriver() bool {
 	return r.driverType == RbdDriverType
 }
 
@@ -1590,6 +1689,9 @@ func mergeDriverSpecs(dest, src *csiv1.DriverSpec) {
 	}
 	if dest.GenerateOMapInfo == nil {
 		dest.GenerateOMapInfo = src.GenerateOMapInfo
+	}
+	if dest.EnableFencing == nil {
+		dest.EnableFencing = src.EnableFencing
 	}
 	if dest.FsGroupPolicy == "" {
 		dest.FsGroupPolicy = src.FsGroupPolicy
