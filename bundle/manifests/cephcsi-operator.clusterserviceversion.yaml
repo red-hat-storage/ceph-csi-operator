@@ -894,6 +894,7 @@ spec:
                     drop:
                     - ALL
                   readOnlyRootFilesystem: true
+              priorityClassName: openshift-user-critical
               securityContext:
                 runAsNonRoot: true
               serviceAccountName: ceph-csi-controller-manager
