@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2025-07-30T08:02:48Z"
+    createdAt: "2025-09-21T08:05:00Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -948,6 +948,38 @@ spec:
           verbs:
           - update
         serviceAccountName: ceph-csi-cephfs-ctrlplugin-sa
+      - rules:
+        - apiGroups:
+          - csiaddons.openshift.io
+          resources:
+          - csiaddonsnodes
+          verbs:
+          - get
+          - watch
+          - list
+          - create
+          - update
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - deployments/finalizers
+          - daemonsets/finalizers
+          verbs:
+          - update
+        serviceAccountName: ceph-csi-cephfs-nodeplugin-sa
       - rules:
         - apiGroups:
           - ""
