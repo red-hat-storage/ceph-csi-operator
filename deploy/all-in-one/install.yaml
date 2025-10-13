@@ -1514,7 +1514,7 @@ spec:
                   deploymentStrategy:
                     description: |-
                       DeploymentStrategy describes how to replace existing pods with new ones
-                      Default value is RollingUpdate with MaxUnavailable and MaxSurege as 25% (kubernetes default)
+                      Default value is Recreate
                     properties:
                       rollingUpdate:
                         description: |-
@@ -4138,9 +4138,6 @@ spec:
                           required:
                           - name
                           type: object
-                      required:
-                      - mount
-                      - volume
                       type: object
                     type: array
                 type: object
@@ -7639,9 +7636,6 @@ spec:
                           required:
                           - name
                           type: object
-                      required:
-                      - mount
-                      - volume
                       type: object
                     type: array
                 type: object
@@ -15798,7 +15792,7 @@ spec:
                       deploymentStrategy:
                         description: |-
                           DeploymentStrategy describes how to replace existing pods with new ones
-                          Default value is RollingUpdate with MaxUnavailable and MaxSurege as 25% (kubernetes default)
+                          Default value is Recreate
                         properties:
                           rollingUpdate:
                             description: |-
@@ -18451,9 +18445,6 @@ spec:
                               required:
                               - name
                               type: object
-                          required:
-                          - mount
-                          - volume
                           type: object
                         type: array
                     type: object
@@ -21983,9 +21974,6 @@ spec:
                               required:
                               - name
                               type: object
-                          required:
-                          - mount
-                          - volume
                           type: object
                         type: array
                     type: object
@@ -29541,6 +29529,7 @@ rules:
   verbs:
   - get
   - list
+  - watch
 - apiGroups:
   - ""
   resources:
