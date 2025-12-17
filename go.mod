@@ -6,12 +6,12 @@ require (
 	github.com/ceph/ceph-csi-operator/api v0.0.0-00010101000000-000000000000
 	github.com/go-logr/logr v1.4.3
 	github.com/kubernetes-csi/external-snapshot-metadata/client v0.2.0
-	github.com/onsi/ginkgo/v2 v2.27.2
-	github.com/onsi/gomega v1.38.2
+	github.com/onsi/ginkgo/v2 v2.27.3
+	github.com/onsi/gomega v1.38.3
 	github.com/stretchr/testify v1.11.1
-	k8s.io/api v0.34.2
-	k8s.io/apimachinery v0.34.2
-	k8s.io/client-go v0.34.2
+	k8s.io/api v0.34.3
+	k8s.io/apimachinery v0.34.3
+	k8s.io/client-go v0.34.3
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
 	sigs.k8s.io/controller-runtime v0.22.4
 )
