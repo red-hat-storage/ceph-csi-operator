@@ -1770,6 +1770,9 @@ func mergeDriverSpecs(dest, src *csiv1.DriverSpec) {
 			if dest.Resources.LogRotator == nil {
 				dest.Resources.LogRotator = src.Resources.LogRotator
 			}
+			if dest.Resources.Addons == nil {
+				dest.Resources.Addons = src.Resources.Addons
+			}
 		}
 	}
 	if src.ControllerPlugin != nil {
@@ -1830,6 +1833,9 @@ func mergeDriverSpecs(dest, src *csiv1.DriverSpec) {
 			}
 			if dest.Resources.LogRotator == nil {
 				dest.Resources.LogRotator = src.Resources.LogRotator
+			}
+			if dest.Resources.Addons == nil {
+				dest.Resources.Addons = src.Resources.Addons
 			}
 		}
 	}
