@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2026-02-26T08:07:38Z"
+    createdAt: "2026-04-16T06:22:17Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -227,6 +227,20 @@ spec:
           verbs:
           - update
           - patch
+        - apiGroups:
+          - replication.storage.openshift.io
+          resources:
+          - volumegroupreplicationcontents
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - replication.storage.openshift.io
+          resources:
+          - volumegroupreplicationclasses
+          verbs:
+          - get
         - apiGroups:
           - ""
           resources:
