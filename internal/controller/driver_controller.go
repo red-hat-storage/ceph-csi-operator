@@ -597,8 +597,14 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 					ServiceAccountName: serviceAccountName,
 					PriorityClassName:  ptr.Deref(pluginSpec.PrioritylClassName, ""),
 					HostNetwork:        ptr.Deref(pluginSpec.HostNetwork, false),
-					Affinity:           getControllerPluginPodAffinity(pluginSpec, &appSelector),
-					Tolerations:        pluginSpec.Tolerations,
+					DNSPolicy: utils.Call(func() corev1.DNSPolicy {
+						if ptr.Deref(pluginSpec.HostNetwork, false) {
+							return corev1.DNSClusterFirstWithHostNet
+						}
+						return corev1.DNSClusterFirst
+					}),
+					Affinity:    getControllerPluginPodAffinity(pluginSpec, &appSelector),
+					Tolerations: pluginSpec.Tolerations,
 					Containers: utils.Call(func() []corev1.Container {
 						containers := []corev1.Container{
 							// Plugin Container
@@ -836,8 +842,6 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 										utils.CsiAddonsAddressContainerArg,
 										utils.ContainerPortArg(port),
 										utils.NamespaceContainerArg,
-										utils.If(logRotationEnabled, utils.LogToStdErrContainerArg, ""),
-										utils.If(logRotationEnabled, utils.AlsoLogToStdErrContainerArg, ""),
 										utils.If(logRotationEnabled, utils.LogFileContainerArg("csi-addons"), ""),
 									),
 								),
@@ -866,7 +870,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 							})
 						}
 						// OMap Generator Sidecar Container
-						if r.isRbdDriver() && ptr.Deref(r.driver.Spec.GenerateOMapInfo, false) {
+						if (r.isRbdDriver() || r.isCephFsDriver()) && ptr.Deref(r.driver.Spec.GenerateOMapInfo, false) {
 							containers = append(containers, corev1.Container{
 								Name:            "csi-omap-generator",
 								Image:           r.images["plugin"],
@@ -1148,8 +1152,6 @@ func (r *driverReconcile) reconcileNodePluginDaemonSetForCsiAddons() error {
 										utils.NamespaceContainerArg,
 										utils.PodUidContainerArg,
 										utils.StagingPathContainerArg(kubeletDirPath),
-										utils.If(logRotationEnabled, utils.LogToStdErrContainerArg, ""),
-										utils.If(logRotationEnabled, utils.AlsoLogToStdErrContainerArg, ""),
 										utils.If(logRotationEnabled, utils.LogFileContainerArg("csi-addons"), ""),
 										utils.If(withCsiAddonsVolumeCondition, utils.CsiAddonsVolumeConditionArg, ""),
 									},
