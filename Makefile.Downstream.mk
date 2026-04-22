@@ -49,6 +49,8 @@ SERVICE_ACCOUNTS := \
 	$(NAME_PREFIX)cephfs-nodeplugin-sa, \
 	$(NAME_PREFIX)nfs-ctrlplugin-sa, \
 	$(NAME_PREFIX)nfs-nodeplugin-sa, \
+	$(NAME_PREFIX)nvmeof-ctrlplugin-sa, \
+	$(NAME_PREFIX)nvmeof-nodeplugin-sa, \
 	$(NAME_PREFIX)rbd-ctrlplugin-sa, \
 	$(NAME_PREFIX)rbd-nodeplugin-sa
 
