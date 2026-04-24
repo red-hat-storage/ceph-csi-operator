@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2026-04-15T08:03:00Z"
+    createdAt: "2026-04-22T11:53:42Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -666,6 +666,191 @@ spec:
           verbs:
           - patch
         - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+        - apiGroups:
+          - ""
+          resources:
+          - serviceaccounts
+          verbs:
+          - get
+        - apiGroups:
+          - ""
+          resources:
+          - serviceaccounts/token
+          verbs:
+          - create
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        serviceAccountName: ceph-csi-nvmeof-ctrlplugin-sa
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          verbs:
+          - get
+          - list
+        - apiGroups:
+          - ""
+          resources:
+          - persistentvolumes
+          verbs:
+          - get
+          - list
+        - apiGroups:
+          - storage.k8s.io
+          resources:
+          - volumeattachments
+          verbs:
+          - get
+          - list
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+        - apiGroups:
+          - ""
+          resources:
+          - serviceaccounts
+          verbs:
+          - get
+        - apiGroups:
+          - ""
+          resources:
+          - serviceaccounts/token
+          verbs:
+          - create
+        - apiGroups:
+          - ""
+          resources:
+          - nodes
+          verbs:
+          - get
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - list
+          - watch
+          - create
+          - update
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - persistentvolumeclaims
+          verbs:
+          - get
+        serviceAccountName: ceph-csi-nvmeof-nodeplugin-sa
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - persistentvolumes
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - delete
+          - patch
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - persistentvolumeclaims
+          verbs:
+          - get
+          - list
+          - watch
+          - update
+        - apiGroups:
+          - storage.k8s.io
+          resources:
+          - storageclasses
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - list
+          - watch
+          - create
+          - update
+          - patch
+        - apiGroups:
+          - storage.k8s.io
+          resources:
+          - volumeattachments
+          verbs:
+          - get
+          - list
+          - watch
+          - patch
+        - apiGroups:
+          - storage.k8s.io
+          resources:
+          - volumeattachments/status
+          verbs:
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - nodes
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - storage.k8s.io
+          resources:
+          - csinodes
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - persistentvolumeclaims/status
+          verbs:
+          - patch
+        - apiGroups:
           - snapshot.storage.k8s.io
           resources:
           - volumesnapshots
@@ -1061,6 +1246,81 @@ spec:
           - create
           - patch
         serviceAccountName: ceph-csi-controller-manager
+      - rules:
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - get
+          - watch
+          - list
+          - delete
+          - update
+          - create
+        - apiGroups:
+          - csiaddons.openshift.io
+          resources:
+          - csiaddonsnodes
+          verbs:
+          - get
+          - watch
+          - list
+          - create
+          - update
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - deployments/finalizers
+          - daemonsets/finalizers
+          verbs:
+          - update
+        serviceAccountName: ceph-csi-nvmeof-ctrlplugin-sa
+      - rules:
+        - apiGroups:
+          - csiaddons.openshift.io
+          resources:
+          - csiaddonsnodes
+          verbs:
+          - get
+          - watch
+          - list
+          - create
+          - update
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - deployments/finalizers
+          - daemonsets/finalizers
+          verbs:
+          - update
+        serviceAccountName: ceph-csi-nvmeof-nodeplugin-sa
       - rules:
         - apiGroups:
           - coordination.k8s.io
