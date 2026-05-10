@@ -40,6 +40,25 @@ helm install ceph-csi-drivers --create-namespace --namespace ceph-csi-driver cep
 
 For example settings, see the next section or [values.yaml](https://github.com/ceph/ceph-csi-operator/tree/main/deploy/charts/ceph-csi-drivers/values.yaml)
 
+### **OpenShift Installation**
+
+For OpenShift clusters, you must enable OpenShift support and configure the SCC ClusterRole name to match the operator installation:
+
+```console
+helm repo add ceph-csi-operator https://ceph.github.io/ceph-csi-operator-charts
+helm install ceph-csi-drivers --create-namespace --namespace ceph-csi-driver \
+  --set openshift.enabled=true \
+  --set openshift.sccClusterRoleName=ceph-csi-operator-scc-user \
+  ceph-csi-operator/ceph-csi-drivers
+```
+
+**Important:**
+* The operator chart must be installed first with `openshift.enabled=true` to create the SCC and ClusterRole
+* The `sccClusterRoleName` must match the ClusterRole created by the operator chart (format: `<operator-release-name>-scc-user`)
+* If you used a custom release name for the operator (e.g., `my-operator`), set `sccClusterRoleName=my-operator-scc-user`
+
+This will create ClusterRoleBindings in the driver namespace that bind the driver service accounts to the SCC ClusterRole created by the operator chart.
+
 ## Configuration
 
 The following table lists the configurable parameters of the ceph-csi-drivers chart and their default values.
@@ -60,6 +79,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.cephfs.attachRequired` | Flag indicating whether attachment is required (default: true) | `true` |
 | `drivers.cephfs.cephFsClientType` | CephFS client type (options: autodetect, kernel) (default: "kernel") | `"kernel"` |
 | `drivers.cephfs.clusterName` | Cluster name identifier (default: "") | `""` |
+| `drivers.cephfs.controllerPlugin.containerExtraArgs` | Extra arguments for controller plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-provisioner, csi-attacher, csi-resizer, csi-snapshotter (default: {}) | `{}` |
 | `drivers.cephfs.controllerPlugin.deploymentStrategy` | Deployment strategy for the controller plugin (default: {}) | `{}` |
 | `drivers.cephfs.controllerPlugin.hostNetwork` | Flag to use host network for the controller plugin (default: false) | `false` |
 | `drivers.cephfs.controllerPlugin.privileged` | Flag to indicate if the container should be privileged (default: false) | `false` |
@@ -67,6 +87,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.cephfs.controllerPlugin.resources` | Resource requirements for controller plugin containers (default: {}) | `{}` |
 | `drivers.cephfs.controllerPlugin.tolerations` | List of tolerations for the controller plugin (default: []) | `[]` |
 | `drivers.cephfs.deployCsiAddons` | Flag to deploy CSI Addons (default: false) | `false` |
+| `drivers.cephfs.enableFencing` | Flag to enable fencing (default: false) | `false` |
 | `drivers.cephfs.enabled` | Enable the CephFS driver (default: true) | `true` |
 | `drivers.cephfs.encryption.configMapRef.name` | Name of the ConfigMap for encryption settings (default: "") | `""` |
 | `drivers.cephfs.fsGroupPolicy` | File system group policy (e.g., "None", "ReadWriteOnceWithFSType") (default: "None") | `"None"` |
@@ -75,6 +96,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.cephfs.grpcTimeout` | gRPC timeout in seconds (default: 30) | `30` |
 | `drivers.cephfs.imageSet.name` | ConfigMap reference to the image set for the driver (default: "") | `""` |
 | `drivers.cephfs.kernelMountOptions` | Kernel mount options (default: {}) | `{}` |
+| `drivers.cephfs.log.rotation.enabled` | Enable log rotation (default: true) | `true` |
 | `drivers.cephfs.log.rotation.logHostPath` | Default log directory path (default: "") | `""` |
 | `drivers.cephfs.log.rotation.maxFiles` | Maximum number of log files to keep (default: 7) | `7` |
 | `drivers.cephfs.log.rotation.maxLogSize` | Maximum size of each log file (default: "10Gi") | `"10Gi"` |
@@ -83,6 +105,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.cephfs.name` | CSI driver name for CephFS (default: "cephfs.csi.ceph.com") | `"cephfs.csi.ceph.com"` |
 | `drivers.cephfs.nodePlugin.affinity` | Affinity settings for the pod (default: {}) | `{}` |
 | `drivers.cephfs.nodePlugin.annotations` | Custom annotations for the pod (default: {}) | `{}` |
+| `drivers.cephfs.nodePlugin.containerExtraArgs` | Extra arguments for node plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-rbdplugin, driver-registrar, csi-addons (default: {}) | `{}` |
 | `drivers.cephfs.nodePlugin.imagePullPolicy` | Image pull policy (default: "IfNotPresent") | `"IfNotPresent"` |
 | `drivers.cephfs.nodePlugin.labels` | Custom labels for the pod (default: {}) | `{}` |
 | `drivers.cephfs.nodePlugin.priorityClassName` | Pod's priority class name (default: "") | `""` |
@@ -92,6 +115,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.nfs.attachRequired` | Flag indicating whether attachment is required (default: true) | `true` |
 | `drivers.nfs.cephFsClientType` | CephFS client type (options: autodetect, kernel) (default: "kernel") | `"kernel"` |
 | `drivers.nfs.clusterName` | Cluster name identifier (default: "") | `""` |
+| `drivers.nfs.controllerPlugin.containerExtraArgs` | Extra arguments for controller plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-provisioner, csi-attacher, csi-resizer, csi-snapshotter (default: {}) | `{}` |
 | `drivers.nfs.controllerPlugin.deploymentStrategy` | Deployment strategy for the controller plugin (default: {}) | `{}` |
 | `drivers.nfs.controllerPlugin.hostNetwork` | Flag to use host network for the controller plugin (default: false) | `false` |
 | `drivers.nfs.controllerPlugin.privileged` | Flag to indicate if the container should be privileged (default: false) | `false` |
@@ -99,6 +123,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.nfs.controllerPlugin.resources` | Resource requirements for controller plugin containers (default: {}) | `{}` |
 | `drivers.nfs.controllerPlugin.tolerations` | List of tolerations for the controller plugin (default: []) | `[]` |
 | `drivers.nfs.deployCsiAddons` | Flag to deploy CSI Addons (default: false) | `false` |
+| `drivers.nfs.enableFencing` | Flag to enable fencing (default: false) | `false` |
 | `drivers.nfs.enabled` | Enable the NFS driver (default: true) | `true` |
 | `drivers.nfs.encryption.configMapRef.name` | Name of the ConfigMap for encryption settings (default: "") | `""` |
 | `drivers.nfs.fsGroupPolicy` | File system group policy (e.g., "None", "ReadWriteOnceWithFSType") (default: "None") | `"None"` |
@@ -107,6 +132,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.nfs.grpcTimeout` | gRPC timeout in seconds (default: 30) | `30` |
 | `drivers.nfs.imageSet.name` | ConfigMap reference to the image set for the driver (default: "") | `""` |
 | `drivers.nfs.kernelMountOptions` | Kernel mount options (default: {}) | `{}` |
+| `drivers.nfs.log.rotation.enabled` | Enable log rotation (default: true) | `true` |
 | `drivers.nfs.log.rotation.logHostPath` | Default log directory path (default: "") | `""` |
 | `drivers.nfs.log.rotation.maxFiles` | Maximum number of log files to keep (default: 7) | `7` |
 | `drivers.nfs.log.rotation.maxLogSize` | Maximum size of each log file (default: "10Gi") | `"10Gi"` |
@@ -115,6 +141,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.nfs.name` | CSI driver name for NFS (default: "nfs.csi.ceph.com") | `"nfs.csi.ceph.com"` |
 | `drivers.nfs.nodePlugin.affinity` | Affinity settings for the pod (default: {}) | `{}` |
 | `drivers.nfs.nodePlugin.annotations` | Custom annotations for the pod (default: {}) | `{}` |
+| `drivers.nfs.nodePlugin.containerExtraArgs` | Extra arguments for node plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-rbdplugin, driver-registrar, csi-addons (default: {}) | `{}` |
 | `drivers.nfs.nodePlugin.imagePullPolicy` | Image pull policy (default: "IfNotPresent") | `"IfNotPresent"` |
 | `drivers.nfs.nodePlugin.labels` | Custom labels for the pod (default: {}) | `{}` |
 | `drivers.nfs.nodePlugin.priorityClassName` | Pod's priority class name (default: "") | `""` |
@@ -125,6 +152,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.nvmeof.attachRequired` | Flag indicating whether attachment is required (default: true) | `true` |
 | `drivers.nvmeof.cephFsClientType` | CephFS client type (options: autodetect, kernel) (default: "kernel") | `"kernel"` |
 | `drivers.nvmeof.clusterName` | Cluster name identifier (default: "") | `""` |
+| `drivers.nvmeof.controllerPlugin.containerExtraArgs` | Extra arguments for controller plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-provisioner, csi-attacher, csi-resizer, csi-snapshotter (default: {}) | `{}` |
 | `drivers.nvmeof.controllerPlugin.deploymentStrategy` | Deployment strategy for the controller plugin (default: {}) | `{}` |
 | `drivers.nvmeof.controllerPlugin.hostNetwork` | Flag to use host network for the controller plugin (default: false) | `false` |
 | `drivers.nvmeof.controllerPlugin.privileged` | Flag to indicate if the container should be privileged (default: false) | `false` |
@@ -132,6 +160,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.nvmeof.controllerPlugin.resources` | Resource requirements for controller plugin containers (default: {}) | `{}` |
 | `drivers.nvmeof.controllerPlugin.tolerations` | List of tolerations for the controller plugin (default: []) | `[]` |
 | `drivers.nvmeof.deployCsiAddons` | Flag to deploy CSI Addons (default: false) | `false` |
+| `drivers.nvmeof.enableFencing` | Flag to enable fencing (default: false) | `false` |
 | `drivers.nvmeof.enabled` | Enable the NVMe-oF driver (default: true) | `true` |
 | `drivers.nvmeof.encryption.configMapRef.name` | Name of the ConfigMap for encryption settings (default: "") | `""` |
 | `drivers.nvmeof.fsGroupPolicy` | File system group policy (e.g., "None", "ReadWriteOnceWithFSType") (default: "File") | `"File"` |
@@ -140,6 +169,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.nvmeof.grpcTimeout` | gRPC timeout in seconds (default: 30) | `30` |
 | `drivers.nvmeof.imageSet.name` | ConfigMap reference to the image set for the driver (default: "") | `""` |
 | `drivers.nvmeof.kernelMountOptions` | Kernel mount options (default: {}) | `{}` |
+| `drivers.nvmeof.log.rotation.enabled` | Enable log rotation (default: true) | `true` |
 | `drivers.nvmeof.log.rotation.logHostPath` | Default log directory path (default: "") | `""` |
 | `drivers.nvmeof.log.rotation.maxFiles` | Maximum number of log files to keep (default: 7) | `7` |
 | `drivers.nvmeof.log.rotation.maxLogSize` | Maximum size of each log file (default: "10Gi") | `"10Gi"` |
@@ -148,6 +178,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.nvmeof.name` | CSI driver name for NVMe-oF (default: "nvmeof.csi.ceph.com") | `"nvmeof.csi.ceph.com"` |
 | `drivers.nvmeof.nodePlugin.affinity` | Affinity settings for the pod (default: {}) | `{}` |
 | `drivers.nvmeof.nodePlugin.annotations` | Custom annotations for the pod (default: {}) | `{}` |
+| `drivers.nvmeof.nodePlugin.containerExtraArgs` | Extra arguments for node plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-rbdplugin, driver-registrar, csi-addons (default: {}) | `{}` |
 | `drivers.nvmeof.nodePlugin.imagePullPolicy` | Image pull policy (default: "IfNotPresent") | `"IfNotPresent"` |
 | `drivers.nvmeof.nodePlugin.labels` | Custom labels for the pod (default: {}) | `{}` |
 | `drivers.nvmeof.nodePlugin.priorityClassName` | Pod's priority class name (default: "") | `""` |
@@ -157,6 +188,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.rbd.attachRequired` | Flag indicating whether attachment is required (default: true) | `true` |
 | `drivers.rbd.cephFsClientType` | CephFS client type (options: autodetect, kernel) (default: "kernel") | `"kernel"` |
 | `drivers.rbd.clusterName` | Cluster name identifier (default: "") | `""` |
+| `drivers.rbd.controllerPlugin.containerExtraArgs` | Extra arguments for controller plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-provisioner, csi-attacher, csi-resizer, csi-snapshotter (default: {}) | `{}` |
 | `drivers.rbd.controllerPlugin.deploymentStrategy` | Deployment strategy for the controller plugin (default: {}) | `{}` |
 | `drivers.rbd.controllerPlugin.hostNetwork` | Flag to use host network for the controller plugin (default: false) | `false` |
 | `drivers.rbd.controllerPlugin.privileged` | Flag to indicate if the container should be privileged (default: false) | `false` |
@@ -164,6 +196,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.rbd.controllerPlugin.resources` | Resource requirements for controller plugin containers (default: {}) | `{}` |
 | `drivers.rbd.controllerPlugin.tolerations` | List of tolerations for the controller plugin (default: []) | `[]` |
 | `drivers.rbd.deployCsiAddons` | Flag to deploy CSI Addons (default: false) | `false` |
+| `drivers.rbd.enableFencing` | Flag to enable fencing (default: false) | `false` |
 | `drivers.rbd.enabled` | Enable the RBD driver (default: true) | `true` |
 | `drivers.rbd.encryption.configMapRef.name` | Name of the ConfigMap for encryption settings (default: "") | `""` |
 | `drivers.rbd.fsGroupPolicy` | File system group policy (e.g., "None", "ReadWriteOnceWithFSType") (default: "File") | `"File"` |
@@ -172,6 +205,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.rbd.grpcTimeout` | gRPC timeout in seconds (default: 30) | `30` |
 | `drivers.rbd.imageSet.name` | ConfigMap reference to the image set for the driver (default: "") | `""` |
 | `drivers.rbd.kernelMountOptions` | Kernel mount options (default: {}) | `{}` |
+| `drivers.rbd.log.rotation.enabled` | Enable log rotation (default: true) | `true` |
 | `drivers.rbd.log.rotation.logHostPath` | Default log directory path (default: "") | `""` |
 | `drivers.rbd.log.rotation.maxFiles` | Maximum number of log files to keep (default: 7) | `7` |
 | `drivers.rbd.log.rotation.maxLogSize` | Maximum size of each log file (default: "10Gi") | `"10Gi"` |
@@ -180,6 +214,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.rbd.name` | CSI driver name for RBD (default: "rbd.csi.ceph.com") | `"rbd.csi.ceph.com"` |
 | `drivers.rbd.nodePlugin.affinity` | Affinity settings for the pod (default: {}) | `{}` |
 | `drivers.rbd.nodePlugin.annotations` | Custom annotations for the pod (default: {}) | `{}` |
+| `drivers.rbd.nodePlugin.containerExtraArgs` | Extra arguments for node plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-rbdplugin, driver-registrar, csi-addons (default: {}) | `{}` |
 | `drivers.rbd.nodePlugin.imagePullPolicy` | Image pull policy (default: "IfNotPresent") | `"IfNotPresent"` |
 | `drivers.rbd.nodePlugin.labels` | Custom labels for the pod (default: {}) | `{}` |
 | `drivers.rbd.nodePlugin.priorityClassName` | Pod's priority class name (default: "") | `""` |
@@ -187,11 +222,14 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `drivers.rbd.nodePlugin.volumes` | List of volumes attached to the pod (default: []) | `[]` |
 | `drivers.rbd.snapshotPolicy` | Snapshot policy (options: none, volumeGroupSnapshot, volumeSnapshot) (default: "none") | `"none"` |
 | `imagePullSecrets` | List of pull secret names that will be added to all serviceaccounts (default: []) | `[]` |
+| `openshift.enabled` | Enable OpenShift-specific resources (ClusterRoleBindings for SCC) (default: false) | `false` |
+| `openshift.sccClusterRoleName` | Name of the SCC ClusterRole created by the operator chart (default: "ceph-csi-operator-scc-user") This should match the ClusterRole name from the operator chart: {{ operator-release-name }}-scc-user | `"ceph-csi-operator-scc-user"` |
 | `operatorConfig.create` | Flag to indicate if the config should be created (default: true) | `true` |
 | `operatorConfig.driverSpecDefaults.attachRequired` | Flag indicating whether attachment is required (default: true) | `true` |
 | `operatorConfig.driverSpecDefaults.cephFsClientType` | CephFS client type (options: autodetect, kernel) (default: "kernel") | `"kernel"` |
 | `operatorConfig.driverSpecDefaults.clusterName` | Cluster name identifier (default: "") | `""` |
 | `operatorConfig.driverSpecDefaults.controllerPlugin.affinity` | Affinity settings for the pod (default: {}) | `{}` |
+| `operatorConfig.driverSpecDefaults.controllerPlugin.containerExtraArgs` | Extra arguments for controller plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-provisioner, csi-attacher, csi-resizer, csi-snapshotter (default: {}) | `{}` |
 | `operatorConfig.driverSpecDefaults.controllerPlugin.deploymentStrategy` | Deployment strategy for the controller plugin (default: {}) | `{}` |
 | `operatorConfig.driverSpecDefaults.controllerPlugin.hostNetwork` | Flag to use host network for the controller plugin (default: false) | `false` |
 | `operatorConfig.driverSpecDefaults.controllerPlugin.imagePullPolicy` | Image pull policy (default: "IfNotPresent") | `"IfNotPresent"` |
@@ -200,6 +238,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `operatorConfig.driverSpecDefaults.controllerPlugin.resources` | Resource requirements for controller plugin containers (default: {}) | `{}` |
 | `operatorConfig.driverSpecDefaults.controllerPlugin.tolerations` | List of tolerations for the controller plugin (default: []) | `[]` |
 | `operatorConfig.driverSpecDefaults.deployCsiAddons` | Flag to deploy CSI Addons (default: false) | `false` |
+| `operatorConfig.driverSpecDefaults.enableFencing` | Flag to enable fencing (default: false) | `false` |
 | `operatorConfig.driverSpecDefaults.encryption.configMapRef.name` | Name of the ConfigMap for encryption settings (default: "") | `""` |
 | `operatorConfig.driverSpecDefaults.fsGroupPolicy` | File system group policy (e.g., "None", "ReadWriteOnceWithFSType") (default: "File") | `"File"` |
 | `operatorConfig.driverSpecDefaults.fuseMountOptions` | FUSE mount options (default: {}) | `{}` |
@@ -207,6 +246,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `operatorConfig.driverSpecDefaults.grpcTimeout` | gRPC timeout in seconds (default: 30) | `30` |
 | `operatorConfig.driverSpecDefaults.imageSet.name` | ConfigMap reference to the image set for the driver (default: "") | `""` |
 | `operatorConfig.driverSpecDefaults.kernelMountOptions` | Kernel mount options (default: {}) | `{}` |
+| `operatorConfig.driverSpecDefaults.log.rotation.enabled` | Enable log rotation (default: true) | `true` |
 | `operatorConfig.driverSpecDefaults.log.rotation.logHostPath` | Default log directory path (default: "") | `""` |
 | `operatorConfig.driverSpecDefaults.log.rotation.maxFiles` | Maximum number of log files to keep (default: 7) | `7` |
 | `operatorConfig.driverSpecDefaults.log.rotation.maxLogSize` | Maximum size of each log file (default: "10Gi") | `"10Gi"` |
@@ -214,6 +254,7 @@ The following table lists the configurable parameters of the ceph-csi-drivers ch
 | `operatorConfig.driverSpecDefaults.log.verbosity` | Log verbosity level (0-5) (default: 0) | `0` |
 | `operatorConfig.driverSpecDefaults.nodePlugin.affinity` | Affinity settings for the pod (default: {}) | `{}` |
 | `operatorConfig.driverSpecDefaults.nodePlugin.annotations` | Custom annotations for the pod (default: {}) | `{}` |
+| `operatorConfig.driverSpecDefaults.nodePlugin.containerExtraArgs` | Extra arguments for node plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-rbdplugin, driver-registrar, csi-addons (default: {}) | `{}` |
 | `operatorConfig.driverSpecDefaults.nodePlugin.imagePullPolicy` | Image pull policy (default: "IfNotPresent") | `"IfNotPresent"` |
 | `operatorConfig.driverSpecDefaults.nodePlugin.kubeletDirPath` | kubelet directory path (default: "/var/lib/kubelet") | `"/var/lib/kubelet"` |
 | `operatorConfig.driverSpecDefaults.nodePlugin.labels` | Custom labels for the pod (default: {}) | `{}` |

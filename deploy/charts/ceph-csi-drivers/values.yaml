@@ -41,6 +41,8 @@ operatorConfig:
       # -- Log verbosity level (0-5) (default: 0)
       verbosity: 0
       rotation:
+        # -- Enable log rotation (default: true)
+        enabled: true
         # -- Maximum number of log files to keep (default: 7)
         maxFiles: 7
         # -- Maximum size of each log file (default: "10Gi")
@@ -54,6 +56,8 @@ operatorConfig:
       name: ""
     # -- Cluster name identifier (default: "")
     clusterName: ""
+    # -- Flag to enable fencing (default: false)
+    enableFencing: false
     # -- gRPC timeout in seconds (default: 30)
     grpcTimeout: 30
     # -- Snapshot policy (options: none, volumeGroupSnapshot, volumeSnapshot) (default: "none")
@@ -96,6 +100,8 @@ operatorConfig:
       volumes: []
       # -- Image pull policy (default: "IfNotPresent")
       imagePullPolicy: "IfNotPresent"
+      # -- Extra arguments for node plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-rbdplugin, driver-registrar, csi-addons (default: {})
+      containerExtraArgs: {}
     # Controller Plugin Configuration
     controllerPlugin:
       # -- Flag to use host network for the controller plugin (default: false)
@@ -110,6 +116,8 @@ operatorConfig:
       privileged: false
       # -- List of tolerations for the controller plugin (default: [])
       tolerations: []
+      # -- Extra arguments for controller plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-provisioner, csi-attacher, csi-resizer, csi-snapshotter (default: {})
+      containerExtraArgs: {}
       # -- Affinity settings for the pod (default: {})
       affinity: {}
       # -- Image pull policy (default: "IfNotPresent")
@@ -126,6 +134,8 @@ drivers:
       # -- Log verbosity level (0-5) (default: 0)
       verbosity: 0
       rotation:
+        # -- Enable log rotation (default: true)
+        enabled: true
         # -- Maximum number of log files to keep (default: 7)
         maxFiles: 7
         # -- Maximum size of each log file (default: "10Gi")
@@ -139,6 +149,8 @@ drivers:
       name: ""
     # -- Cluster name identifier (default: "")
     clusterName: ""
+    # -- Flag to enable fencing (default: false)
+    enableFencing: false
     # -- gRPC timeout in seconds (default: 30)
     grpcTimeout: 30
     # -- Snapshot policy (options: none, volumeGroupSnapshot, volumeSnapshot) (default: "none")
@@ -177,6 +189,8 @@ drivers:
       volumes: []
       # -- Image pull policy (default: "IfNotPresent")
       imagePullPolicy: "IfNotPresent"
+      # -- Extra arguments for node plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-rbdplugin, driver-registrar, csi-addons (default: {})
+      containerExtraArgs: {}
     # Controller Plugin Configuration
     controllerPlugin:
       # -- Flag to use host network for the controller plugin (default: false)
@@ -191,6 +205,8 @@ drivers:
       privileged: false
       # -- List of tolerations for the controller plugin (default: [])
       tolerations: []
+      # -- Extra arguments for controller plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-provisioner, csi-attacher, csi-resizer, csi-snapshotter (default: {})
+      containerExtraArgs: {}
   # NVMe-oF driver configuration (backed by RBD)
   nvmeof:
     # -- CSI driver name for NVMe-oF (default: "nvmeof.csi.ceph.com")
@@ -201,6 +217,8 @@ drivers:
       # -- Log verbosity level (0-5) (default: 0)
       verbosity: 0
       rotation:
+        # -- Enable log rotation (default: true)
+        enabled: true
         # -- Maximum number of log files to keep (default: 7)
         maxFiles: 7
         # -- Maximum size of each log file (default: "10Gi")
@@ -214,6 +232,8 @@ drivers:
       name: ""
     # -- Cluster name identifier (default: "")
     clusterName: ""
+    # -- Flag to enable fencing (default: false)
+    enableFencing: false
     # -- gRPC timeout in seconds (default: 30)
     grpcTimeout: 30
     # -- Snapshot policy (options: none, volumeGroupSnapshot, volumeSnapshot) (default: "none")
@@ -252,6 +272,8 @@ drivers:
       volumes: []
       # -- Image pull policy (default: "IfNotPresent")
       imagePullPolicy: "IfNotPresent"
+      # -- Extra arguments for node plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-rbdplugin, driver-registrar, csi-addons (default: {})
+      containerExtraArgs: {}
     # Controller Plugin Configuration
     controllerPlugin:
       # -- Flag to use host network for the controller plugin (default: false)
@@ -266,6 +288,8 @@ drivers:
       privileged: false
       # -- List of tolerations for the controller plugin (default: [])
       tolerations: []
+      # -- Extra arguments for controller plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-provisioner, csi-attacher, csi-resizer, csi-snapshotter (default: {})
+      containerExtraArgs: {}
   # CephFS driver configuration
   cephfs:
     # -- CSI driver name for CephFS (default: "cephfs.csi.ceph.com")
@@ -276,6 +300,8 @@ drivers:
       # -- Log verbosity level (0-5) (default: 0)
       verbosity: 0
       rotation:
+        # -- Enable log rotation (default: true)
+        enabled: true
         # -- Maximum number of log files to keep (default: 7)
         maxFiles: 7
         # -- Maximum size of each log file (default: "10Gi")
@@ -289,6 +315,8 @@ drivers:
       name: ""
     # -- Cluster name identifier (default: "")
     clusterName: ""
+    # -- Flag to enable fencing (default: false)
+    enableFencing: false
     # -- gRPC timeout in seconds (default: 30)
     grpcTimeout: 30
     # -- Snapshot policy (options: none, volumeGroupSnapshot, volumeSnapshot) (default: "volumeSnapshot")
@@ -327,6 +355,8 @@ drivers:
       volumes: []
       # -- Image pull policy (default: "IfNotPresent")
       imagePullPolicy: "IfNotPresent"
+      # -- Extra arguments for node plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-rbdplugin, driver-registrar, csi-addons (default: {})
+      containerExtraArgs: {}
     # Controller Plugin Configuration
     controllerPlugin:
       # -- Flag to use host network for the controller plugin (default: false)
@@ -341,6 +371,8 @@ drivers:
       privileged: false
       # -- List of tolerations for the controller plugin (default: [])
       tolerations: []
+      # -- Extra arguments for controller plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-provisioner, csi-attacher, csi-resizer, csi-snapshotter (default: {})
+      containerExtraArgs: {}
   # NFS driver configuration
   nfs:
     # -- CSI driver name for NFS (default: "nfs.csi.ceph.com")
@@ -351,6 +383,8 @@ drivers:
       # -- Log verbosity level (0-5) (default: 0)
       verbosity: 0
       rotation:
+        # -- Enable log rotation (default: true)
+        enabled: true
         # -- Maximum number of log files to keep (default: 7)
         maxFiles: 7
         # -- Maximum size of each log file (default: "10Gi")
@@ -364,6 +398,8 @@ drivers:
       name: ""
     # -- Cluster name identifier (default: "")
     clusterName: ""
+    # -- Flag to enable fencing (default: false)
+    enableFencing: false
     # -- gRPC timeout in seconds (default: 30)
     grpcTimeout: 30
     # -- Snapshot policy (options: none, volumeGroupSnapshot, volumeSnapshot) (default: "volumeSnapshot")
@@ -404,6 +440,8 @@ drivers:
       volumes: []
       # -- Image pull policy (default: "IfNotPresent")
       imagePullPolicy: "IfNotPresent"
+      # -- Extra arguments for node plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-rbdplugin, driver-registrar, csi-addons (default: {})
+      containerExtraArgs: {}
     # Controller Plugin Configuration
     controllerPlugin:
       # -- Flag to use host network for the controller plugin (default: false)
@@ -418,5 +456,14 @@ drivers:
       privileged: false
       # -- List of tolerations for the controller plugin (default: [])
       tolerations: []
+      # -- Extra arguments for controller plugin containers. Key: container name, Value: list of CLI arguments. Examples: csi-provisioner, csi-attacher, csi-resizer, csi-snapshotter (default: {})
+      containerExtraArgs: {}
 # -- List of pull secret names that will be added to all serviceaccounts (default: [])
 imagePullSecrets: []
+# OpenShift configuration
+openshift:
+  # -- Enable OpenShift-specific resources (ClusterRoleBindings for SCC) (default: false)
+  enabled: false
+  # -- Name of the SCC ClusterRole created by the operator chart (default: "ceph-csi-operator-scc-user")
+  # This should match the ClusterRole name from the operator chart: {{ operator-release-name }}-scc-user
+  sccClusterRoleName: "ceph-csi-operator-scc-user"

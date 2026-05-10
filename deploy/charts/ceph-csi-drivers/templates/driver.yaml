@@ -12,7 +12,7 @@ spec:
   {{- if $driver.log }}
   log:
     verbosity: {{ $driver.log.verbosity }}
-    {{- if $driver.log.rotation }}
+    {{- if and $driver.log.rotation (ne $driver.log.rotation.enabled false) }}
     rotation:
       maxFiles: {{ $driver.log.rotation.maxFiles }}
       maxLogSize: {{ $driver.log.rotation.maxLogSize }}
@@ -32,6 +32,7 @@ spec:
   clusterName: {{ $driver.clusterName }}
   {{- end }}
   enableMetadata: {{ $driver.enableMetadata }}
+  enableFencing: {{ $driver.enableFencing }}
   grpcTimeout: {{ $driver.grpcTimeout }}
   snapshotPolicy: {{ $driver.snapshotPolicy }}
   generateOMapInfo: {{ $driver.generateOMapInfo }}
@@ -106,6 +107,10 @@ spec:
       {{- else }}
       []  # Empty list if no volumes are defined
       {{- end }}
+    {{- if $driver.nodePlugin.containerExtraArgs }}
+    containerExtraArgs:
+      {{- toYaml $driver.nodePlugin.containerExtraArgs | nindent 6 }}
+    {{- end }}
   {{- end }}
   # Controller Plugin Configuration
   controllerPlugin:
@@ -145,6 +150,10 @@ spec:
       {{- end }}
     {{- if $driver.controllerPlugin.imagePullPolicy }}
     imagePullPolicy: {{ $driver.controllerPlugin.imagePullPolicy }}
+    {{- end }}
+    {{- if $driver.controllerPlugin.containerExtraArgs }}
+    containerExtraArgs:
+      {{- toYaml $driver.controllerPlugin.containerExtraArgs | nindent 6 }}
     {{- end }}
   {{- end }}
 {{- end }}
