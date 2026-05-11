@@ -38,14 +38,30 @@ helm install ceph-csi-operator --create-namespace --namespace ceph-csi-operator-
 
 For example settings, see the next section or [values.yaml](https://github.com/ceph/ceph-csi-operator/tree/main/deploy/charts/ceph-csi-operator/values.yaml)
 
+### **OpenShift Installation**
+
+For OpenShift clusters, enable the OpenShift-specific SecurityContextConstraints (SCC) by setting `openshift.enabled=true`:
+
+```console
+helm repo add ceph-csi-operator https://ceph.github.io/ceph-csi-operator/
+helm install ceph-csi-operator --create-namespace --namespace ceph-csi-operator-system \
+  --set openshift.enabled=true \
+  ceph-csi-operator/ceph-csi-operator
+```
+
+This will create:
+* A SecurityContextConstraint (`ceph-csi-operator-scc`) that grants the necessary permissions for CSI operations
+* A ClusterRole (`ceph-csi-operator-scc-user`) that allows using the SCC
+* ClusterRoleBindings that bind all CSI service accounts to the SCC ClusterRole
+
+**Note:** When deploying drivers on OpenShift, you must also enable OpenShift support in the drivers chart. See the [drivers chart documentation](./drivers-chart.md#openshift-installation) for details.
+
 ## Configuration
 
 The following table lists the configurable parameters of the ceph-csi-operator chart and their default values.
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `cephfsCtrlpluginSa.serviceAccount.annotations` | Annotations to add to the CephFS controller plugin service account (default: {}) | `{}` |
-| `cephfsNodepluginSa.serviceAccount.annotations` | Annotations to add to the CephFS node plugin service account (default: {}) | `{}` |
 | `controllerManager.manager.args` | Arguments to pass to the manager container (default: ["--leader-elect"]) | `["--leader-elect"]` |
 | `controllerManager.manager.containerSecurityContext.allowPrivilegeEscalation` | Disallow privilege escalation for the manager container (default: false) | `false` |
 | `controllerManager.manager.containerSecurityContext.capabilities.drop` | List of capabilities to drop from the manager container (default: ["ALL"]) | `["ALL"]` |
@@ -58,17 +74,20 @@ The following table lists the configurable parameters of the ceph-csi-operator c
 | `controllerManager.manager.resources.limits.memory` | Memory limit for the manager container (default: "128Mi") | `"128Mi"` |
 | `controllerManager.manager.resources.requests.cpu` | CPU request for the manager container (default: "10m") | `"10m"` |
 | `controllerManager.manager.resources.requests.memory` | Memory request for the manager container (default: "64Mi") | `"64Mi"` |
+| `controllerManager.nodeSelector` | Node selector for the controller manager pod (default: {}) | `{}` |
 | `controllerManager.podSecurityContext.runAsNonRoot` | Run the pod as a non-root user (default: true) | `true` |
+| `controllerManager.priorityClassName` | Priority class name for the controller manager pod (default: "") | `""` |
 | `controllerManager.replicas` | Number of controller manager replicas (default: 1) | `1` |
 | `controllerManager.serviceAccount.annotations` | Annotations to add to the controller manager service account (default: {}) | `{}` |
+| `controllerManager.tolerations` | Tolerations for the controller manager pod (default: []) | `[]` |
+| `controllerManager.topologySpreadConstraints` | Topology spread constraints for the controller manager pod (default: []) | `[]` |
 | `imagePullSecrets` | List of image pull secret names for pulling container images (default: []) | `[]` |
 | `kubernetesClusterDomain` | Kubernetes cluster domain used for DNS resolution (default: "cluster.local") | `"cluster.local"` |
-| `nfsCtrlpluginSa.serviceAccount.annotations` | Annotations to add to the NFS controller plugin service account (default: {}) | `{}` |
-| `nfsNodepluginSa.serviceAccount.annotations` | Annotations to add to the NFS node plugin service account (default: {}) | `{}` |
-| `nvmeofCtrlpluginSa.serviceAccount.annotations` | Annotations to add to the NVMe-oF controller plugin service account (default: {}) | `{}` |
-| `nvmeofNodepluginSa.serviceAccount.annotations` | Annotations to add to the NVMe-oF node plugin service account (default: {}) | `{}` |
-| `rbdCtrlpluginSa.serviceAccount.annotations` | Annotations to add to the RBD controller plugin service account (default: {}) | `{}` |
-| `rbdNodepluginSa.serviceAccount.annotations` | Annotations to add to the RBD node plugin service account (default: {}) | `{}` |
+| `openshift.enabled` | Enable OpenShift-specific resources (SecurityContextConstraints) (default: false) | `false` |
+| `serviceAccount.annotations` | Annotations to add to the service account (default: {}) | `{}` |
+| `serviceAccount.automount` | Automatically mount a ServiceAccount's API credentials (default: true) | `true` |
+| `serviceAccount.create` | Specifies whether a service account should be created (default: true) | `true` |
+| `serviceAccount.name` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template (default: "") | `""` |
 
 ### **Development Build**
 
