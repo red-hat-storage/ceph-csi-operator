@@ -1,6 +1,6 @@
 module github.com/ceph/ceph-csi-operator/api
 
-go 1.25.0
+go 1.25.2
 
 require (
 	k8s.io/api v0.35.3

@@ -1,6 +1,6 @@
 module github.com/ceph/ceph-csi-operator
 
-go 1.25.0
+go 1.25.2
 
 require (
 	github.com/ceph/ceph-csi-operator/api v0.0.0-20260211052505-60308e55e5d9
