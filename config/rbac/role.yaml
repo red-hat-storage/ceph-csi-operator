@@ -18,6 +18,13 @@ rules:
   - update
   - watch
 - apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - list
+  - watch
+- apiGroups:
   - apps
   resources:
   - daemonsets
@@ -29,14 +36,6 @@ rules:
   - list
   - patch
   - update
-  - watch
-- apiGroups:
-  - cbt.storage.k8s.io
-  resources:
-  - snapshotmetadataservices
-  verbs:
-  - get
-  - list
   - watch
 - apiGroups:
   - csi.ceph.io
