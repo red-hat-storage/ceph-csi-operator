@@ -34,7 +34,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -51,7 +50,6 @@ import (
 
 	csiv1 "github.com/ceph/ceph-csi-operator/api/v1"
 	"github.com/ceph/ceph-csi-operator/internal/utils"
-	sm "github.com/kubernetes-csi/external-snapshot-metadata/client/apis/snapshotmetadataservice/v1beta1"
 )
 
 //+kubebuilder:rbac:groups=csi.ceph.io,resources=drivers,verbs=get;list;watch;create;update;patch;delete
@@ -62,8 +60,8 @@ import (
 //+kubebuilder:rbac:groups=storage.k8s.io,resources=csidrivers,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resources=nodes,verbs=list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="cbt.storage.k8s.io",resources=snapshotmetadataservices,verbs=get;list;watch;
 
 type DriverType string
 
@@ -230,16 +228,6 @@ func (r *DriverReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		log.Info("CSI Driver reconciliation completed successfully")
 	}
 	return ctrl.Result{}, err
-}
-
-func (r *driverReconcile) hasSnapshotMetadataServiceCr() (bool, error) {
-	sms := &sm.SnapshotMetadataService{}
-	sms.Name = r.driver.Name
-	if err := r.Get(r.ctx, client.ObjectKeyFromObject(sms), sms); !meta.IsNoMatchError(err) && client.IgnoreNotFound(err) != nil {
-		return false, fmt.Errorf("failed to get SnapshotMetadataService resource: %w", err)
-	}
-
-	return sms.UID != "", nil
 }
 
 func (r *driverReconcile) reconcile() error {
@@ -579,8 +567,10 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 		nodePluginSpec := cmp.Or(r.driver.Spec.NodePlugin, &csiv1.NodePluginSpec{})
 		topology := r.isRbdDriver() && nodePluginSpec.Topology != nil
 
+		replicas := r.getControllerPluginReplicas(log, pluginSpec.Replicas)
+
 		deploy.Spec = appsv1.DeploymentSpec{
-			Replicas: pluginSpec.Replicas,
+			Replicas: replicas,
 			Selector: &appSelector,
 			Strategy: ptr.Deref(pluginSpec.DeploymentStrategy, defaultDeploymentStrategy),
 			Template: corev1.PodTemplateSpec{
@@ -969,9 +959,10 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 						}
 						// CSI snapshot-metadata Sidecar Container
 						if r.isRbdDriver() {
-							if deploy, err := r.hasSnapshotMetadataServiceCr(); err != nil {
-								r.log.Error(err, "Failed to check for SnapshotMetadataService CR")
-							} else if deploy {
+							tlsMountIndex := slices.IndexFunc(pluginSpec.Volumes, func(vol csiv1.VolumeSpec) bool {
+								return vol.Volume.Name == "tls-key"
+							})
+							if tlsMountIndex != -1 {
 								containers = append(containers, corev1.Container{
 									Name:            "csi-snapshot-metadata",
 									ImagePullPolicy: imagePullPolicy,
@@ -984,6 +975,7 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 											utils.CsiAddressContainerArg,
 											utils.SnapshotMetadataTlsCertArg,
 											utils.SnapshotMetadataTlsKeyArg,
+											utils.SnapshotMetadataAudienceArg(r.driver.Name),
 										},
 									),
 									Ports: []corev1.ContainerPort{
@@ -991,14 +983,8 @@ func (r *driverReconcile) reconcileControllerPluginDeployment() error {
 									},
 									VolumeMounts: utils.Call(func() []corev1.VolumeMount {
 										mounts := []corev1.VolumeMount{}
-										tlsMountIndex := slices.IndexFunc(pluginSpec.Volumes, func(vol csiv1.VolumeSpec) bool {
-											return vol.Volume.Name == "tls-key"
-										})
-										if tlsMountIndex != -1 {
-											mounts = append(mounts, pluginSpec.Volumes[tlsMountIndex].Mount)
-										}
+										mounts = append(mounts, pluginSpec.Volumes[tlsMountIndex].Mount)
 										mounts = append(mounts, utils.SocketDirVolumeMount)
-
 										return mounts
 									}),
 								})
@@ -1683,6 +1669,31 @@ func (r *driverReconcile) generateServiceName(suffix string) string {
 	re := regexp.MustCompile(`[^a-z0-9-]`)
 	// Replace all special characters with a hyphen
 	return re.ReplaceAllString(name, "-")
+}
+
+func (r *driverReconcile) getControllerPluginReplicas(
+	log logr.Logger,
+	specReplicas *int32,
+) *int32 {
+	if specReplicas != nil {
+		return specReplicas
+	}
+
+	var replicas int32 = defaultControllerPluginReplicas
+	nodeList := &corev1.NodeList{}
+	if err := r.List(r.ctx, nodeList); err != nil {
+		log.Error(err, "Failed to list nodes for replica calculation")
+		return &replicas
+	}
+
+	nodeCount := len(nodeList.Items)
+	if nodeCount > 0 && nodeCount < int(replicas) {
+		replicas = 1
+		log.Info("Capping controller replicas to node count",
+			"default", defaultControllerPluginReplicas, "nodeCount", nodeCount)
+	}
+
+	return &replicas
 }
 
 func getControllerPluginPodAffinity(
