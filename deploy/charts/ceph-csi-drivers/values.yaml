@@ -6,8 +6,9 @@ cephConnections:
     monitors: {}
     # -- Number of RBD mirror daemons (default: 1)
     rbdMirrorDaemonCount: 1
-    # -- Labels to be used for CRUSH location selection (default: {})
-    crushLocationLabels: {}
+    # -- Labels to be used for CRUSH location selection (default: [])
+    # Leave empty to disable read affinity. When set, it must be a non-empty list of node label keys, e.g. ["topology.kubernetes.io/zone"].
+    crushLocationLabels: []
 # Configuration for Client Profiles
 clientProfiles:
   - # -- Name of the client profile (default: "")
@@ -45,8 +46,8 @@ operatorConfig:
         enabled: true
         # -- Maximum number of log files to keep (default: 7)
         maxFiles: 7
-        # -- Maximum size of each log file (default: "10Gi")
-        maxLogSize: "10Gi"
+        # -- Maximum size of each log file (default: "10G")
+        maxLogSize: "10G"
         # -- Periodicity for log rotation (options: hourly, daily, weekly, monthly) (default: "daily")
         periodicity: "daily"
         # -- Default log directory path (default: "")
@@ -138,8 +139,8 @@ drivers:
         enabled: true
         # -- Maximum number of log files to keep (default: 7)
         maxFiles: 7
-        # -- Maximum size of each log file (default: "10Gi")
-        maxLogSize: "10Gi"
+        # -- Maximum size of each log file (default: "10G")
+        maxLogSize: "10G"
         # -- Periodicity for log rotation (options: hourly, daily, weekly, monthly) (default: "daily")
         periodicity: "daily"
         # -- Default log directory path (default: "")
@@ -221,8 +222,8 @@ drivers:
         enabled: true
         # -- Maximum number of log files to keep (default: 7)
         maxFiles: 7
-        # -- Maximum size of each log file (default: "10Gi")
-        maxLogSize: "10Gi"
+        # -- Maximum size of each log file (default: "10G")
+        maxLogSize: "10G"
         # -- Periodicity for log rotation (options: hourly, daily, weekly, monthly) (default: "daily")
         periodicity: "daily"
         # -- Default log directory path (default: "")
@@ -304,8 +305,8 @@ drivers:
         enabled: true
         # -- Maximum number of log files to keep (default: 7)
         maxFiles: 7
-        # -- Maximum size of each log file (default: "10Gi")
-        maxLogSize: "10Gi"
+        # -- Maximum size of each log file (default: "10G")
+        maxLogSize: "10G"
         # -- Periodicity for log rotation (options: hourly, daily, weekly, monthly) (default: "daily")
         periodicity: "daily"
         # -- Default log directory path (default: "")
@@ -323,8 +324,8 @@ drivers:
     snapshotPolicy: "volumeSnapshot"
     # -- Flag to generate OMap info (default: false)
     generateOMapInfo: false
-    # -- File system group policy (e.g., "None", "ReadWriteOnceWithFSType") (default: "None")
-    fsGroupPolicy: "None"
+    # -- File system group policy (e.g., "None", "ReadWriteOnceWithFSType") (default: "File")
+    fsGroupPolicy: "File"
     encryption:
       configMapRef:
         # -- Name of the ConfigMap for encryption settings (default: "")
@@ -387,8 +388,8 @@ drivers:
         enabled: true
         # -- Maximum number of log files to keep (default: 7)
         maxFiles: 7
-        # -- Maximum size of each log file (default: "10Gi")
-        maxLogSize: "10Gi"
+        # -- Maximum size of each log file (default: "10G")
+        maxLogSize: "10G"
         # -- Periodicity for log rotation (options: hourly, daily, weekly, monthly) (default: "daily")
         periodicity: "daily"
         # -- Default log directory path (default: "")
@@ -406,8 +407,8 @@ drivers:
     snapshotPolicy: "volumeSnapshot"
     # -- Flag to generate OMap info (default: false)
     generateOMapInfo: false
-    # -- File system group policy (e.g., "None", "ReadWriteOnceWithFSType") (default: "None")
-    fsGroupPolicy: "None"
+    # -- File system group policy (e.g., "None", "ReadWriteOnceWithFSType") (default: "File")
+    fsGroupPolicy: "File"
     encryption:
       configMapRef:
         # -- Name of the ConfigMap for encryption settings (default: "")
