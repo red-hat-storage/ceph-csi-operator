@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2026-07-20T08:06:00Z"
+    createdAt: "2026-07-21T08:02:21Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -573,6 +573,31 @@ spec:
           - get
           - list
           - watch
+        - apiGroups:
+          - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotclasses
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotcontents
+          verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+        - apiGroups:
+          - groupsnapshot.storage.k8s.io
+          resources:
+          - volumegroupsnapshotcontents/status
+          verbs:
+          - update
+          - patch
         serviceAccountName: ceph-csi-nfs-ctrlplugin-sa
       - rules:
         - apiGroups:
