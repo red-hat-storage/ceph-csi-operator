@@ -12,7 +12,7 @@ WATCH_NAMESPACE ?= ""
 
 IMG ?= $(IMAGE_REGISTRY)/$(REGISTRY_NAMESPACE)/$(IMAGE_NAME):$(IMAGE_TAG)
 
-KUBE_RBAC_PROXY_IMG ?= gcr.io/kubebuilder/kube-rbac-proxy:v0.16.0
+KUBE_RBAC_PROXY_IMG ?= registry.k8s.io/kubebuilder/kube-rbac-proxy:v0.16.0
 
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.29.0
@@ -245,9 +245,9 @@ GOLANGCI_LINT = $(LOCALBIN)/golangci-lint-$(GOLANGCI_LINT_VERSION)
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.3.0
-CONTROLLER_TOOLS_VERSION ?= v0.14.0
-ENVTEST_VERSION ?= release-0.17
-GOLANGCI_LINT_VERSION ?= v1.57.2
+CONTROLLER_TOOLS_VERSION ?= v0.17.2
+ENVTEST_VERSION ?= v0.0.0-20250517180713-32e5e9e948a5
+GOLANGCI_LINT_VERSION ?= v1.63.4
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
