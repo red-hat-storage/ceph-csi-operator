@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2026-07-08T08:02:39Z"
+    createdAt: "2026-07-20T08:06:00Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -20,6 +20,9 @@ spec:
       version: v1
     - kind: ClientProfileMapping
       name: clientprofilemappings.csi.ceph.io
+      version: v1
+    - kind: ClientProfileReplication
+      name: clientprofilereplications.csi.ceph.io
       version: v1
     - kind: ClientProfile
       name: clientprofiles.csi.ceph.io
@@ -358,6 +361,7 @@ spec:
           - csi.ceph.io
           resources:
           - clientprofilemappings
+          - clientprofilereplications
           - clientprofiles
           - drivers
           verbs:
@@ -372,6 +376,7 @@ spec:
           - csi.ceph.io
           resources:
           - clientprofilemappings/finalizers
+          - clientprofilereplications/finalizers
           - clientprofiles/finalizers
           - drivers/finalizers
           verbs:
@@ -380,6 +385,7 @@ spec:
           - csi.ceph.io
           resources:
           - clientprofilemappings/status
+          - clientprofilereplications/status
           - clientprofiles/status
           - drivers/status
           verbs:
@@ -393,6 +399,18 @@ spec:
           verbs:
           - get
           - list
+          - watch
+        - apiGroups:
+          - networking.k8s.io
+          resources:
+          - networkpolicies
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
           - watch
         - apiGroups:
           - storage.k8s.io
