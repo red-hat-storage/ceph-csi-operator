@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2026-07-21T08:02:21Z"
+    createdAt: "2026-08-05T08:02:15Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -140,6 +140,7 @@ spec:
           verbs:
           - get
           - list
+          - watch
         - apiGroups:
           - snapshot.storage.k8s.io
           resources:
@@ -544,6 +545,7 @@ spec:
           verbs:
           - get
           - list
+          - watch
         - apiGroups:
           - ""
           resources:
