@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2026-08-26T08:23:27Z"
+    createdAt: "2026-09-07T09:19:46Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -304,9 +304,15 @@ spec:
           - ""
           resources:
           - persistentvolumes
+          verbs:
+          - get
+        - apiGroups:
+          - ""
+          resources:
           - persistentvolumeclaims
           verbs:
           - get
+          - patch
         - apiGroups:
           - authentication.k8s.io
           resources:
@@ -1184,6 +1190,7 @@ spec:
           - persistentvolumeclaims
           verbs:
           - get
+          - patch
         serviceAccountName: ceph-csi-rbd-nodeplugin-sa
       deployments:
       - label:
