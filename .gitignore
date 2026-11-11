@@ -36,3 +36,6 @@ dist/
 
 # Locally generated dockerfile for multi-arch
 Dockerfile.cross
+
+# Local graphify knowledge graph / caches
+graphify-out/
