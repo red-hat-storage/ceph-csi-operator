@@ -19,6 +19,7 @@ github.com/cenkalti/backoff/v5
 # github.com/ceph/ceph-csi-operator/api v0.0.0-20260526051243-cb61bd9132e2 => ./api
 ## explicit; go 1.26.0
 github.com/ceph/ceph-csi-operator/api/v1
+github.com/ceph/ceph-csi-operator/api/v1alpha1
 # github.com/cespare/xxhash/v2 v2.3.0
 ## explicit; go 1.11
 github.com/cespare/xxhash/v2
