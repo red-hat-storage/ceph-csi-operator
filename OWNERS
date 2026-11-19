@@ -1,8 +1,8 @@
 # approval == this is a good idea /approve
 approvers:
   - Madhu-1
-  - nb-ohad
+  - black-dragon74
 # review == this code is good /lgtm
 reviewers:
   - Madhu-1
-  - nb-ohad
+  - black-dragon74
