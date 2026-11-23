@@ -14799,7 +14799,7 @@ spec:
         x-kubernetes-validations:
         - message: '.metadata.name must match: ''[<prefix>.](rbd|cephfs|nfs).csi.ceph.com'''
           rule: self.metadata.name.matches('^(.+\\.)?(rbd|cephfs|nfs)?\\.csi\\.ceph\\.com$')
-    served: true
+    served: false
     storage: false
     subresources:
       status: {}

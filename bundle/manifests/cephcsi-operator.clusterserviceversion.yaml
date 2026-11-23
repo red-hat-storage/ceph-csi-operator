@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2026-11-23T10:20:05Z"
+    createdAt: "2026-11-23T10:21:43Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -18,36 +18,21 @@ spec:
     - kind: CephConnection
       name: cephconnections.csi.ceph.io
       version: v1
-    - kind: CephConnection
-      name: cephconnections.csi.ceph.io
-      version: v1alpha1
     - kind: ClientProfileMapping
       name: clientprofilemappings.csi.ceph.io
       version: v1
-    - kind: ClientProfileMapping
-      name: clientprofilemappings.csi.ceph.io
-      version: v1alpha1
     - kind: ClientProfileReplication
       name: clientprofilereplications.csi.ceph.io
       version: v1
     - kind: ClientProfile
       name: clientprofiles.csi.ceph.io
       version: v1
-    - kind: ClientProfile
-      name: clientprofiles.csi.ceph.io
-      version: v1alpha1
     - kind: Driver
       name: drivers.csi.ceph.io
       version: v1
-    - kind: Driver
-      name: drivers.csi.ceph.io
-      version: v1alpha1
     - kind: OperatorConfig
       name: operatorconfigs.csi.ceph.io
       version: v1
-    - kind: OperatorConfig
-      name: operatorconfigs.csi.ceph.io
-      version: v1alpha1
   description: Operator to deploy ceph csi drivers.
   displayName: CephCSI operator
   icon:

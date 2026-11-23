@@ -14968,7 +14968,7 @@ spec:
             description: OperatorConfigStatus defines the observed state of OperatorConfig
             type: object
         type: object
-    served: true
+    served: false
     storage: false
     subresources:
       status: {}

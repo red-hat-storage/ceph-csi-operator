@@ -48,6 +48,7 @@ type ClientProfileMappingStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:deprecatedversion:warning="v1alpha1 is deprecated, please use v1"
+//+kubebuilder:unservedversion
 //+kubebuilder:subresource:status
 
 // ClientProfileMapping is the Schema for the clientprofilemappings API

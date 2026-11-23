@@ -47,6 +47,7 @@ type CephConnectionStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:deprecatedversion:warning="v1alpha1 is deprecated, please use v1"
+//+kubebuilder:unservedversion
 //+kubebuilder:subresource:status
 
 // CephConnection is the Schema for the cephconnections API
