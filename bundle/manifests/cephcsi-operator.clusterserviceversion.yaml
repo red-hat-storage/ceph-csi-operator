@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    createdAt: "2026-11-23T10:21:43Z"
+    createdAt: "2026-11-23T10:59:22Z"
     olm.skipRange: ""
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/operator-type: non-standalone
@@ -343,6 +343,30 @@ spec:
           - list
           - watch
         - apiGroups:
+          - apiextensions.k8s.io
+          resourceNames:
+          - cephconnections.csi.ceph.io
+          - clientprofilemappings.csi.ceph.io
+          - clientprofiles.csi.ceph.io
+          - drivers.csi.ceph.io
+          - operatorconfigs.csi.ceph.io
+          resources:
+          - customresourcedefinitions
+          verbs:
+          - get
+        - apiGroups:
+          - apiextensions.k8s.io
+          resourceNames:
+          - cephconnections.csi.ceph.io
+          - clientprofilemappings.csi.ceph.io
+          - clientprofiles.csi.ceph.io
+          - drivers.csi.ceph.io
+          - operatorconfigs.csi.ceph.io
+          resources:
+          - customresourcedefinitions/status
+          verbs:
+          - update
+        - apiGroups:
           - apps
           resources:
           - daemonsets
@@ -407,6 +431,7 @@ spec:
           verbs:
           - get
           - list
+          - update
           - watch
         - apiGroups:
           - networking.k8s.io
