@@ -28,19 +28,23 @@ import (
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/certwatcher"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/filters"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	csiv1 "github.com/ceph/ceph-csi-operator/api/v1"
+	csiv1alpha1 "github.com/ceph/ceph-csi-operator/api/v1alpha1"
 	"github.com/ceph/ceph-csi-operator/internal/controller"
+	"github.com/ceph/ceph-csi-operator/internal/migration"
 	"github.com/ceph/ceph-csi-operator/internal/utils"
 	//+kubebuilder:scaffold:imports
 )
@@ -53,7 +57,9 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
+	utilruntime.Must(csiv1alpha1.AddToScheme(scheme))
 	utilruntime.Must(csiv1.AddToScheme(scheme))
+	utilruntime.Must(apiextensionsv1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -218,6 +224,32 @@ func main() {
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
+
+	// The manager cache is scoped to the watched namespaces, the migration
+	// needs to see objects in every namespace.
+	uncachedClient, err := client.New(mgr.GetConfig(), client.Options{
+		Scheme: mgr.GetScheme(),
+		Mapper: mgr.GetRESTMapper(),
+	})
+	if err != nil {
+		setupLog.Error(err, "unable to create uncached client")
+		os.Exit(1)
+	}
+	if err := mgr.Add(&migration.StoredVersionMigrator{
+		Client: uncachedClient,
+		Group:  csiv1.GroupVersion.Group,
+		Resources: []string{
+			"cephconnections",
+			"clientprofilemappings",
+			"clientprofiles",
+			"drivers",
+			"operatorconfigs",
+		},
+		RemoveVersion: "v1alpha1",
+	}); err != nil {
+		setupLog.Error(err, "unable to add stored version migrator to manager")
+		os.Exit(1)
+	}
 
 	if metricsCertWatcher != nil {
 		setupLog.Info("Adding metrics certificate watcher to manager")
